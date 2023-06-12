@@ -18,14 +18,14 @@ import tqdm
 import ray
 from ray.exceptions import RayActorError
 from ray.util import ActorPool
-
+import alpa
 from alpa.device_mesh import (DistributedArray, PhysicalDeviceMesh,
                               VirtualPhysicalMesh, _shard_device_array,
                               get_global_cluster)
 from alpa.global_env import global_config
 from alpa.mesh_executable import (PartialGradAccMeshDriverExecutable,
                                   get_grad_sync_channel_ids)
-from alpa.mesh_profiling import (ProfilingResultDatabase,
+from alpa.mesh_profiling import (ProfilingResultDatabase, profile_all, MeshProfilingResult,
                                  estimate_hlo_module_cost)
 from alpa.pipeline_parallel.apply_grad import APPLY_GRAD_MARKER_SUFFIX
 from alpa.pipeline_parallel.computation import (
@@ -190,7 +190,6 @@ def get_input_output_sharding_proto(hlo_module, num_devices):
 class CompileWorker:
     """
     A ray actor to compile Jaxpr to HLO Proto using distributed workers.
-
     To activate the worker, a gpu resource is required.
     """
 
@@ -199,7 +198,6 @@ class CompileWorker:
                                     num_micro_batches):
         """
         Compile a single stage with auto sharding for profiling.
-
         Args:
             stage_id: the index of the input stage.
             config: configs for compilation.
@@ -207,7 +205,6 @@ class CompileWorker:
             autosharding_option: the global config dictionary for compilation
                 setting.
             num_micro_batches: the number of microbatches.
-
         Returns:
             hlo: The WrappedHlo of the compiled executable for accumulate grad
             stage_plan: The sharding strategy from auto sharding
@@ -300,7 +297,6 @@ class CompileWorkerPool(BaseWorkerPoolWrapper):
 
     def local_get(self, fn, *value):
         """Debug use function.
-
         This function submits the work to local worker instead of a remote ray
         actor to help with debug.
         """
@@ -309,7 +305,6 @@ class CompileWorkerPool(BaseWorkerPoolWrapper):
 
 class ProfileWorker:
     """A ray actor to profile a WrappedHlo on a given mesh.
-
     It requests gpu resources from ray. When exceptions is catched, it restarts
     the whole mesh.
     """
@@ -321,11 +316,9 @@ class ProfileWorker:
     def _profile_impl(self, stage_id, compiled_module_output, stage_plan,
                       profile_config):
         """Implementation of profile function.
-
         The profiler first compile the WrappedHLO into Mesh Executable, then
         profiles the executable and computes the maximal number of stages
         following up this stage.
-
         Args:
             stage_id: the stage id of the proto.
             compiled_module_output: Compiled WrappedHlo, input sharding,
@@ -333,7 +326,6 @@ class ProfileWorker:
             stage_plan: The compiled sharding strategy from the auto sharding
                 pass.
             profile_config: Profile config of the module.
-
         Returns:
             stage_id: the input stage id.
             cost (float): the time to run the profiled stage.
@@ -369,7 +361,6 @@ class ProfileWorker:
 
     def profile(self, stage_id, compiled_output, stage_plan, profile_info):
         """Run profiling on this profile worker.
-
         If the RayActorError is catched, it retries until profile_maximum_retry
         is reached. Otherwise, it directly returns. In both cases, the mesh
         restarts.
@@ -439,7 +430,7 @@ class HloCostModelProfileWorker:
         if profile_config.acc_grad_outvars_indices:
             grad_sync_channel_ids = get_grad_sync_channel_ids(hlo_module)
         peak_memory = compiled.total_allocation_size()
-        available_memory = self.prof_result.available_memory_per_device
+        available_memory = 70.683*1024**3 # self.prof_result.available_memory_per_device
         cost = estimate_hlo_module_cost(hlo_module, self.prof_result,
                                         self.num_micro_batches,
                                         grad_sync_channel_ids)
@@ -454,7 +445,6 @@ class HloCostModelProfileWorker:
 
 class HloCostModelProfileWorkerPool(BaseWorkerPoolWrapper):
     """A pool of HloCostModelProfileWorker for distributed profiling.
-
     Instead of doing real measurements, this class uses a HLO instruction
     cost model to estimate the cost.
     """
@@ -486,11 +476,16 @@ def compile_all(stages, num_micro_batches, default_as_option, profile_results):
     Compile all input stages.
     """
     num_cpus = int(
-        min(max(ray.available_resources()["CPU"] // 2, 1), len(stages)))
+        min(max(ray.available_resources()["CPU"]//16, 1), len(stages)))
 
     compile_workers = CompileWorkerPool(num_cpus)
     num_compiled_stages = 0
+    print(f"len stage: {len(stages)}, num_cpus = {num_cpus}")
     for i, (stage_idx, stage_config, auto_sharding_config) in enumerate(stages):
+        # duplicate check
+        if len(stage_idx) == 5:
+            print(f"duplicated stages so pass the compile and profile: {(stage_idx[0], stage_idx[1])} == {stage_idx[4]}")
+            continue
         if (stage_idx in profile_results and
                 profile_results[stage_idx].fully_profiled()):
             continue
@@ -579,7 +574,6 @@ def generate_module_profile_result(raw_result: Tuple,
 def profile_all(stages, compiled_outputs: Sequence[CompileOutput], meshes,
                 num_micro_batches, auto_stage_option, profile_results):
     """Profile all compiled outputs on given meshes.
-
     This function launches a profile worker pool and submits given tasks.
     """
     placement_group = retrieve_placement_group()
@@ -588,9 +582,22 @@ def profile_all(stages, compiled_outputs: Sequence[CompileOutput], meshes,
         num_cpus = int(
             min(max(ray.available_resources()["CPU"] // 2, 1), len(stages)))
         mesh_num_devices = meshes[0].num_devices
+        '''prof_database = ProfilingResultDatabase()
+        cluster = alpa.get_global_cluster()
+
+        prof_database = cluster.profile_all("default", #args.cluster_key,
+                                        2, #args.max_comm_size_intra_node,
+                                        2, #args.max_comm_size_inter_node,
+                                        5, #max_fail_retry=args.max_fail_retry,
+                                        "/alpa_OG/7_examples/examples/hlocostmodel/tmp_cache.pkl", #cache_filename=args.cache_filename,
+                                        dot_range=range(0, 8192, 128))
+        prof_database.save("/alpa_OG/7_examples/examples/hlocostmodel/hlocaostmodel.pkl")
+        print("Save profiling database to {/alpa_OG/7_examples/examples/hlocostmodel/hlocaostmodel.pkl}")
+        prof_database.load("/alpa_OG/7_examples/examples/hlocostmodel/hlocaostmodel.pkl")
+        prof_result = prof_database.query("default", meshes[0].shape)'''
         prof_database = ProfilingResultDatabase()
-        prof_database.load(auto_stage_option.profiling_database_filename)
-        prof_result = prof_database.query("default", meshes[0].shape)
+        prof_result = MeshProfilingResult()
+        #prof_result = {"all_gather_cost_dict": {}, "all_reduce_cost_dict": {}, "all_to_all_cost_dict": {}, "reduce_scatter_cost_dict": {}, "dot_cost_dict": {}} # None
         profile_workers = HloCostModelProfileWorkerPool(num_cpus,
                                                         placement_group,
                                                         prof_result,
@@ -604,7 +611,9 @@ def profile_all(stages, compiled_outputs: Sequence[CompileOutput], meshes,
         if compiled_output is None:
             continue
         stage_idx, stage_config, _ = stage
-
+        if len(stage_idx) == 5:
+            print(f"duplicated stages so pass the compile and profile: {(stage_idx[0], stage_idx[1])} == {stage_idx[4]}")
+            continue
         for module_id, (acc_grad_module, profile_config) in enumerate(
                 zip(compiled_output.acc_grad_module_compile_outputs,
                     stage_config.module_profile_configs)):
@@ -643,7 +652,7 @@ def profile_all(stages, compiled_outputs: Sequence[CompileOutput], meshes,
     profile_workers.shutdown()
     return profile_results
 
-
+from alpa.pipeline_parallel.primitive_def import pipeline_p
 def generate_training_stages_2d(layers,
                                 layer_flops_prefix_sum,
                                 accumulator_mapping,
@@ -652,31 +661,160 @@ def generate_training_stages_2d(layers,
                                 apply_grad_layers,
                                 apply_grad_global_info,
                                 mesh_id,
-                                autosharding_configs,
+                                config_idx, autosharding_configs,
                                 mesh_num_devices,
                                 cluster_size,
                                 stage_imbalance_tolerance=np.inf):
     print("- Generate all stage infos (Jaxpr -> HLO)")
     assert len(layers) % 2 == 0
     num_layers = len(layers) // 2
-    indices = list(range(2 * num_layers))
+    indices = list(range(2 * num_layers)) # 0, 1, 2, ..., 14*2-1
     computation_source_ratio = mesh_num_devices / cluster_size
     is_full_mesh = computation_source_ratio == 1
     tot_flops = layer_flops_prefix_sum[2 * num_layers]
+    global_unique_stages=[]
     stages = []
+    stages_ind = []
+    # markov
+    # One
+    duplicate_numbers = 0
     for start in tqdm.tqdm(range(0, num_layers)):
+        # init check_duplicate
+        check_duplicate_stage = False
+        duplicate_TAG = None
+        unique_check = []
+        end = start
+        forward_layer_indices = indices[start:end + 1]
+        backward_layer_indices = indices[2 * num_layers - end -
+                                            1:2 * num_layers - start]
+        selected_apply_grad_layers = [
+            apply_grad_layers[idx]
+            for idx in forward_layer_indices
+            if apply_grad_layers[idx] is not None
+        ]
+        # ========= Check Duplicate ===============
+        # layers = Sequence[JaxPipelineComputation]
+        check_layers = [layers[k] for k in forward_layer_indices] # layer indices
+        for layer in check_layers:
+            '''for eqn in layer.closed_jaxpr().jaxpr.eqns: # ClosedJaxpr.jaxpr.eqns
+                print(f"eq: {eqn}")
+                if "pipeline_marker" in eqn: # identity function @ just a parker from alpa.jax.primitive
+                    print(f"eqn: {eqn}")
+                    continue'''
+            for eqn_idx, eqn in enumerate(layer.closed_jaxpr().jaxpr.eqns):
+                if eqn.primitive is pipeline_p:
+                    #if "pipeline_marker" in eqn: # identity function @ just a parker from alpa.jax.primitive
+                    continue
+                #print(f"type: {type(eqn)}") # <class 'jax.core.JaxprEqn'>
+                unique_check.append(str(eqn))
+        
+        print(f"{start}_{end}_unique_check: {unique_check}")
+        stages_ind.append((start, end))
+        #global_unique_stages_wo_TAG = [sublist[1:] for sublist in global_unique_stages]
+        #print(f"global_unique_stages {global_unique_stages}")
+        for sublist in global_unique_stages:
+            #print(f"sublist: {sublist}")
+            if unique_check == sublist:
+                check_duplicate_stage = True
+                duplicate_index = global_unique_stages.index(unique_check)
+                duplicate_TAG = stages_ind[duplicate_index] # TUPLE (start, end) # first duplicate
+                print(f"duplicte!!{start}_{end}_{duplicate_TAG}")
+                duplicate_numbers += 1
+                break
+            else:
+                continue
+                #print("not duplicated")
+        global_unique_stages.append(unique_check) # with TAGs
+            
+        #gensym_fn = gensym([layer.closed_jaxpr().jaxpr for layer in layers])
+        if not check_duplicate_stage: # False
+            stage_name = f"stage_{start}_{end}"
+            stage_config = generate_stage_info(
+                layers, [forward_layer_indices, backward_layer_indices],
+                accumulator_mapping, acc_grad_invars, acc_grad_outvars,
+                stage_name, selected_apply_grad_layers, apply_grad_global_info)
+            #for config_idx, autosharding_config in enumerate(
+            #        autosharding_configs):
+            #if config_idx != 1:
+            #    print(f"pass: {config_idx}")
+            #    continue
+            stage_indices = (start, end, mesh_id, config_idx)
+            stages.append(
+                (stage_indices, stage_config, autosharding_configs))
+        else: # 누구랑 중복되는지 알려줘야 해.
+            stage_indices = (start, end, mesh_id, config_idx, duplicate_TAG)
+            stages.append((stage_indices, None, None))
+    #Two
+    for start in tqdm.tqdm(range(0, num_layers-1)):
+        check_duplicate_stage = False
+        duplicate_TAG = None
+        unique_check = []
+        end = start + 1
+        forward_layer_indices = indices[start:end + 1]
+        backward_layer_indices = indices[2 * num_layers - end -
+                                            1:2 * num_layers - start]
+        selected_apply_grad_layers = [
+            apply_grad_layers[idx]
+            for idx in forward_layer_indices
+            if apply_grad_layers[idx] is not None
+        ]
+        # ========= Check Duplicate ===============
+        # layers = Sequence[JaxPipelineComputation]
+        check_layers = [layers[k] for k in forward_layer_indices] # layer indices
+        for layer in check_layers:
+            #for eqn in layer.closed_jaxpr().jaxpr.eqns: # ClosedJaxpr.jaxpr.eqns
+            for eqn_idx, eqn in enumerate(layer.closed_jaxpr().jaxpr.eqns):
+                if eqn.primitive is pipeline_p:
+                    #if "pipeline_marker" in eqn: # identity function @ just a parker from alpa.jax.primitive
+                    continue
+                unique_check.append(str(eqn))
+        #print(f"{start}_{end}_unique_check: {unique_check}")
+        stages_ind.append((start, end))
+        #global_unique_stages_wo_TAG = [sublist[1:] for sublist in global_unique_stages]
+        for sublist in global_unique_stages:
+            if unique_check != sublist:
+                continue
+            else:
+                check_duplicate_stage = True
+                duplicate_index = global_unique_stages.index(unique_check)
+                duplicate_TAG = stages_ind[duplicate_index] # TUPLE (start, end) # first duplicate
+                print(f"duplicte!!{start}_{end}_{duplicate_TAG}")
+                break
+        global_unique_stages.append(unique_check) # with TAGs
+        
+        #gensym_fn = gensym([layer.closed_jaxpr().jaxpr for layer in layers])
+        if not check_duplicate_stage: # False
+            stage_name = f"stage_{start}_{end}"
+            stage_config = generate_stage_info(
+                layers, [forward_layer_indices, backward_layer_indices],
+                accumulator_mapping, acc_grad_invars, acc_grad_outvars,
+                stage_name, selected_apply_grad_layers, apply_grad_global_info)
+            #for config_idx, autosharding_config in enumerate(
+            #        autosharding_configs):
+            #if config_idx != 1:
+            #    print(f"pass: {config_idx}")
+            #    continue
+            stage_indices = (start, end, mesh_id, config_idx)
+            stages.append(
+                (stage_indices, stage_config, autosharding_configs))
+        else: # 누구랑 중복되는지 알려줘야 해.
+            stage_indices = (start, end, mesh_id, config_idx, duplicate_TAG)
+            stages.append((stage_indices, None, None))
+
+    print(f"> Total duplicated lyaer number: {duplicate_numbers} <")
+    '''for start in tqdm.tqdm(range(0, num_layers)):
         for end in tqdm.tqdm(range(start, num_layers), leave=False):
-            if is_full_mesh and not (start == 0 and end == num_layers - 1):
-                continue
-            flops_ratio = (
-                layer_flops_prefix_sum[end + 1] - layer_flops_prefix_sum[start]
-                + layer_flops_prefix_sum[2 * num_layers - start] -
-                layer_flops_prefix_sum[2 * num_layers - end - 1]) / tot_flops
-            if (computation_source_ratio > flops_ratio *
-                (1 + stage_imbalance_tolerance) or
-                    computation_source_ratio < flops_ratio /
-                (1 + stage_imbalance_tolerance)):
-                continue
+            #if is_full_mesh and not (start == 0 and end == num_layers - 1):
+            #    continue
+            #flops_ratio = (
+            #    layer_flops_prefix_sum[end + 1] - layer_flops_prefix_sum[start]
+            #    + layer_flops_prefix_sum[2 * num_layers - start] -
+            #    layer_flops_prefix_sum[2 * num_layers - end - 1]) / tot_flops
+            #if (computation_source_ratio > flops_ratio *
+            #    (1 + stage_imbalance_tolerance) or
+            #        computation_source_ratio < flops_ratio /
+            #    (1 + stage_imbalance_tolerance)):
+            #    continue
             forward_layer_indices = indices[start:end + 1]
             backward_layer_indices = indices[2 * num_layers - end -
                                              1:2 * num_layers - start]
@@ -690,12 +828,14 @@ def generate_training_stages_2d(layers,
                 layers, [forward_layer_indices, backward_layer_indices],
                 accumulator_mapping, acc_grad_invars, acc_grad_outvars,
                 stage_name, selected_apply_grad_layers, apply_grad_global_info)
-            for config_idx, autosharding_config in enumerate(
-                    autosharding_configs):
-                if autosharding_config is not None:
-                    stage_indices = (start, end, mesh_id, config_idx)
-                    stages.append(
-                        (stage_indices, stage_config, autosharding_config))
+            #for config_idx, autosharding_config in enumerate(
+            #        autosharding_configs):
+            #if config_idx != 1:
+            #    print(f"pass: {config_idx}")
+            #    continue
+            stage_indices = (start, end, mesh_id, config_idx)
+            stages.append(
+                (stage_indices, stage_config, autosharding_configs))'''
     return stages
 
 
@@ -1110,8 +1250,11 @@ def distributed_profile_on_mesh(stages, meshes: Sequence[VirtualPhysicalMesh],
 
     print("- Compile all stages")
     try:
+        start_TIme = time()
         compiled_outputs = compile_all(stages, num_micro_batches,
                                        default_as_option, profile_results)
+        compile_time = time() - start_TIme
+        print("compiled time: ", compile_time)
     except RayActorError as e:
         logger.warning(f"Compilation fatal error: {e}")
         timers("stage-construction-compilation").stop()
@@ -1122,9 +1265,12 @@ def distributed_profile_on_mesh(stages, meshes: Sequence[VirtualPhysicalMesh],
     # shape of compute_cost and max_n_succ_stages:
     # (num_layers, num_layers, num_autosharding_configs)
     timers("stage-construction-profiling").start()
+    profile_time = time()
     profile_results = profile_all(stages, compiled_outputs, meshes,
                                   num_micro_batches, auto_stage_option,
                                   profile_results)
+    profile_end = time() - profile_time
+    print("profile time: ", profile_end)
     timers("stage-construction-profiling").stop()
     return profile_results
 
@@ -1176,11 +1322,9 @@ def get_compute_cost(
         auto_stage_option: "AutoStageOption",
         inference_mode: bool = False):
     """Get computation cost for each possible (stage, mesh) configuration.
-
     This function enumerates all given submesh choices, then profiles compute
     cost of all stage configuration under the submesh. For each submesh, it
     slices the given mesh or the whole device cluster into submeshes to profile.
-
     Args:
         virtual_mesh: The whole virtual mesh. If profile_with_whole_ray_cluster
             is turned off in global config, virtual_mesh is sliced into pieces
@@ -1201,7 +1345,6 @@ def get_compute_cost(
         default_as_option: The default auto-sharding options.
         auto_stage_option: The auto stage construction algorthm options.
         inference_mode: Whether to run in inference mode.
-
     Returns:
         Two np.ndarray, each with shape (L, L, S, C), where L is the number of
         forward layers, S is the number of submesh choices, and C is the maximal
@@ -1246,49 +1389,52 @@ def get_compute_cost(
         else:
             sliced_virtual_meshes = virtual_mesh.slice_profiling_submeshes(
                 num_hosts, num_devices_per_host)
-
-        if auto_stage_option.layer_profile_mode == "composition":
-            if inference_mode:
-                stages = generate_inference_stages_2d(
-                    layers, layer_flops_prefix_sum, accumulator_mapping,
-                    acc_grad_invars, acc_grad_outvars, apply_grad_layers,
-                    apply_grad_global_info, mesh_id,
-                    autosharding_configs[mesh_id],
-                    sliced_virtual_meshes[0].num_devices, cluster_size,
-                    auto_stage_option.stage_imbalance_tolerance)
+        for config_idx, auto in enumerate(autosharding_configs[mesh_id]):
+            print(f"config_idx: {config_idx}, auto: {auto}")
+            if auto_stage_option.layer_profile_mode == "composition":
+                if auto is None:
+                    continue
+                if inference_mode:
+                    stages = generate_inference_stages_2d(
+                        layers, layer_flops_prefix_sum, accumulator_mapping,
+                        acc_grad_invars, acc_grad_outvars, apply_grad_layers,
+                        apply_grad_global_info, mesh_id,
+                        autosharding_configs[mesh_id],
+                        sliced_virtual_meshes[0].num_devices, cluster_size,
+                        auto_stage_option.stage_imbalance_tolerance)
+                else:
+                    stages = generate_training_stages_2d(
+                        layers, layer_flops_prefix_sum, accumulator_mapping,
+                        acc_grad_invars, acc_grad_outvars, apply_grad_layers,
+                        apply_grad_global_info, mesh_id,
+                        config_idx, auto, #autosharding_configs[mesh_id],
+                        sliced_virtual_meshes[0].num_devices, cluster_size,
+                        auto_stage_option.stage_imbalance_tolerance)
+            elif auto_stage_option.layer_profile_mode == "individual":
+                if inference_mode:
+                    stages = generate_inference_stages_1d(
+                        layers, accumulator_mapping, acc_grad_invars,
+                        acc_grad_outvars, apply_grad_layers, apply_grad_global_info,
+                        mesh_id, autosharding_configs[mesh_id])
+                else:
+                    stages = generate_training_stages_1d(
+                        layers, accumulator_mapping, acc_grad_invars,
+                        acc_grad_outvars, apply_grad_layers, apply_grad_global_info,
+                        mesh_id, autosharding_configs[mesh_id])
             else:
-                stages = generate_training_stages_2d(
-                    layers, layer_flops_prefix_sum, accumulator_mapping,
-                    acc_grad_invars, acc_grad_outvars, apply_grad_layers,
-                    apply_grad_global_info, mesh_id,
-                    autosharding_configs[mesh_id],
-                    sliced_virtual_meshes[0].num_devices, cluster_size,
-                    auto_stage_option.stage_imbalance_tolerance)
-        elif auto_stage_option.layer_profile_mode == "individual":
-            if inference_mode:
-                stages = generate_inference_stages_1d(
-                    layers, accumulator_mapping, acc_grad_invars,
-                    acc_grad_outvars, apply_grad_layers, apply_grad_global_info,
-                    mesh_id, autosharding_configs[mesh_id])
-            else:
-                stages = generate_training_stages_1d(
-                    layers, accumulator_mapping, acc_grad_invars,
-                    acc_grad_outvars, apply_grad_layers, apply_grad_global_info,
-                    mesh_id, autosharding_configs[mesh_id])
-        else:
-            raise ValueError(f"Unknown layer profile mode: "
-                             f"{auto_stage_option.layer_profile_mode}")
+                raise ValueError(f"Unknown layer profile mode: "
+                                    f"{auto_stage_option.layer_profile_mode}")
 
-        check_profile_results_consistent(stages, profile_results)
+            check_profile_results_consistent(stages, profile_results)
 
-        profile_results = distributed_profile_on_mesh(
-            stages, sliced_virtual_meshes, num_micro_batches, default_as_option,
-            auto_stage_option, profile_results)
+            profile_results = distributed_profile_on_mesh(
+                stages, sliced_virtual_meshes, num_micro_batches, default_as_option,
+                auto_stage_option, profile_results)
 
-        toc = time()
-        print(f"Profiling for submesh {mesh_id} {submesh} takes {toc - tic:.2f}"
-              f" seconds")
-        print("-" * 50)
+            toc = time()
+            print(f"Profiling for submesh {mesh_id} {submesh} takes {toc - tic:.2f}"
+                f" seconds")
+            print("-" * 50)
 
     timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     profile_result_file_name = (f"profile-results-{timestamp}.npy")
@@ -1334,7 +1480,6 @@ def select_module_layers(layers: Sequence[JaxPipelineComputation],
     """
     For each module, select the layers and get the accumulator mapping and
     required outvars for each module.
-
     Args:
         layers: all layers.
         layer_indices: a list of layer ids within the module.
@@ -1342,7 +1487,6 @@ def select_module_layers(layers: Sequence[JaxPipelineComputation],
             used to determine the donation.
         acc_grad_invars: the invars of the accumulator gradient layers.
         acc_grad_outvars: the outvars of the accumulator gradient layers.
-
     Returns:
         module: a list of layers that belong to the module.
         module_accumulator_mappings: accumulator mapping for the module.
@@ -1387,7 +1531,6 @@ def split_sharding_specs(layers: Sequence[JaxPipelineComputation],
                          out_sharding_specs):
     """
     Split sharding specs of layers.
-
     Some intermediate sharding specs are missed,
     but they are not across meshes so this does not matter.
     """
@@ -1538,7 +1681,6 @@ def profile_layer_communication_cost(
         src_mesh: VirtualPhysicalMesh, dst_mesh: VirtualPhysicalMesh,
         collective_group: CollectiveGroup):
     """Profile communication cost for given two stages.
-
     It ignores the global load balance, but instead only consider the balance of
     the task. However, as the communication is sequential and SPMD, this does
     not hurt much.
@@ -1648,7 +1790,6 @@ def get_sharded_size_by_proto(serialized_proto,
 def compute_apply_grad_invar_size(input_sharding_protos,
                                   config: ApplyGradConfig, logical_mesh_shape):
     """Compute the size of parameters only used in apply gradient period.
-
     These parameters are never used in compute gradient period but stored on
     the GPU, so they take memory and influence max_n_succ_stages.
     """
