@@ -1,0 +1,1 @@
+NCCL_DEBUG=INFO NCCL_DEBUG_SUBSYS=ALL python nccl.py

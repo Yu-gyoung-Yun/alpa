@@ -1,0 +1,119 @@
+    1  conda activate alpa
+    2  cd /SSD/YG/examples/gpt2
+    3  cd /SSD/YG/alpa/examples/gpt2
+    4  bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+    5  pip3 install datasets transformers==4.20.0
+    6  bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+    7  pip install numpy==1.23.0
+    8  bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+    9  pip3 install --upgrade pip
+   10  pip3 install cupy-cuda113
+   11  nvcc -V
+   12  python3 -c "from cupy.cuda import nccl"
+   13  python3
+   14  python -c "import torch;print(torch.cuda.nccl.version())"
+   15  ldconfig -v | grep "libnccl.so" | tail -n1 | sed -r 's/^.*\.so\.//'
+   16  NCCL_DEBUG=INFO bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+   17  NCCL_DEBUG=INFO NCCL_DEBUG_SUBSYS=AL bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+   18  NCCL_DEBUG=INFO NCCL_DEBUG_SUBSYS=ALL bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+   19  python
+   20  pip3 install mpi4py
+   21  apt install mpich
+   22  pip3 install mpi4py
+   23  python
+   24  conda activate alpa
+   25  cd ../..
+   26  NCCL_DEBUG=INFO NCCL_DEBUG_SUBSYS=ALL python nccl.py
+   27  pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu113
+   28  NCCL_DEBUG=INFO NCCL_DEBUG_SUBSYS=ALL python nccl.py
+   29  conda activate alpa
+   30  cd /SSD/YG/alpa
+   31  import cupy as cp
+   32  from cupy.cuda import nccl
+   33  # Initialize NCCL communicator
+   34  comm_id = nccl.get_unique_id()
+   35  comm = nccl.NcclCommunicator(2, comm_id, 0)
+   36  # Create data to send
+   37  gpu1_data = cp.array([1.0, 2.0, 3.0], dtype=cp.float32)
+   38  gpu2_data = cp.array([4.0, 5.0, 6.0], dtype=cp.float32)
+   39  # Synchronize GPUs before communication
+   40  cp.cuda.stream.get_current_stream().synchronize()
+   41  # Perform allReduce to send data from GPU 1 to GPU 2
+   42  comm.allReduce(gpu1_data, gpu2_data, gpu1_data.size, nccl.NCCL_FLOAT32)
+   43  # Print received data on GPU 2
+   44  if nccl.get_rank() == 1:
+   45  # Clean up NCCL communicator
+   46  apt-get install nsight-systems-2022.1.3
+   47  NCCL_DEBUG=INFO NCCL_DEBUG_SUBSYS=ALL python nccl.py
+   48  nsys profile NCCL_DEBUG=INFO NCCL_DEBUG_SUBSYS=ALL python nccl.py
+   49  vim run.sh
+   50  nsys profile bash run.sh
+   51  nsys profile python p2p_test.py
+   52  cd examples/gpt2
+   53  NCCL_DEBUG=INFO NCCL_DEBUG_SUBSYS=AL bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+   54  NCCL_DEBUG=INFO NCCL_DEBUG_SUBSYS=ALL bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+   55  python -m cupyx.tools.install_library --cuda 11.3 --library nccl
+   56  ls /usr/local/cuda -al
+   57  ln -sfT /usr/local/cuda/cuda-11.3/ /usr/local/cuda
+   58  ls /usr/local/cuda -al
+   59  source ~/.bashrc
+   60  conda activate alpa
+   61  python3 -c "from cupy.cuda import nccl"
+   62  python -m cupyx.tools.install_library --cuda 11.3 --library nccl
+   63  pip3 install cupy-cuda113
+   64  python -m cupyx.tools.install_library --cuda 11.3 --library nccl
+   65  echo LD_LIBRARY_PATH
+   66  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64
+   67  export PATH=$PATH:/usr/local/cuda/bin
+   68  export CUDA_HOME=$CUDA_HOME:/usr/local/cuda
+   69  source ~?.bashrc
+   70  source ~/.bashrc
+   71  conda activate alpa
+   72  python -m cupyx.tools.install_library --cuda 11.3 --library nccl
+   73  env | grep -i cuda
+   74  ls /usr/local/cuda -al
+   75  update-alternatives --query cuda
+   76  ll /usr/local/cuda
+   77  update-alternatives --query cuda
+   78  ll /etc/alternatives/cuda
+   79  ln -sfT /usr/local/cuda-11.3 /usr/local/cuda
+   80  source ~/.bashrc
+   81  conda activate alpa
+   82  watch -d -n 1 nvidia-smi
+   83  nvidia-smi topo -m
+   84  conda activate alpa
+   85  cd SSD/YG/alpa/examples/gpt2
+   86  python -m cupyx.tools.install_library --cuda 11.3 --library nccl
+   87  env | grep -i cuda
+   88  NCCL_DEBUG=INFO NCCL_DEBUG_SUBSYS=ALL bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+   89  env | grep -i cuda
+   90  python
+   91  ls /usr/local/cuda -al
+   92  NCCL_DEBUG=WARN NCCL_DEBUG_SUBSYS=ALL bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+   93  NCCL_P2P_LEVEL= SYS NCCL_SHM_DISABLE=1 NCCL_DEBUG=WARN NCCL_DEBUG_SUBSYS=ALL bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+   94  NCCL_P2P_LEVEL=SYS NCCL_SHM_DISABLE=1 NCCL_DEBUG=WARN bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+   95  ldconfig -v | grep "libnccl.so" | tail -n1 | sed -r 's/^.*\.so\.//'
+   96  NCCL_P2P_LEVEL=SYS NCCL_SHM_DISABLE=1 NCCL_DEBUG=WARN bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+   97  cd /
+   98  cd /usr/local/cuda
+   99  cd ..
+  100  ls
+  101  cd cuda
+  102  ls
+  103  git clone -b v11.3 --recursive https://github.com/NVIDIA/cuda-samples.git
+  104  cd cuda-samples/
+  105  make
+  106  cd Samples/p2pBandwidthLatencyTest/
+  107  ./p2pBandwidthLatencyTest 
+  108  NCCL_P2P_LEVEL=SYS NCCL_SHM_DISABLE=1 NCCL_DEBUG=WARN ./p2pBandwidthLatencyTest 
+  109  cd /
+  110  cd SSD/YG/alpa/examples/gpt2/
+  111  bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+  112  NCCL_P2P_LEVEL=SYS NCCL_SHM_DISABLE=1 NCCL_DEBUG=WARN bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+  113  bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+  114  NCCL_P2P_LEVEL=SYS NCCL_SHM_DISABLE=1 NCCL_DEBUG=WARN bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+  115  bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+  116  NCCL_P2P_LEVEL=SYS NCCL_SHM_DISABLE=1 NCCL_DEBUG=WARN bash train_data.sh -m 8 -bs 64 -dp 2 -op 1 -pp 4
+  117  ray stop --force
+  118  history
+  119  history > setting.txt
