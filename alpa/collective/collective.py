@@ -59,11 +59,9 @@ def nccl_available():
 
 def get_nccl_group(world_size, rank, group_name):
     assert nccl_available()
-    if global_config.nccl_mode == "cupy": # global.config # here
-        #print("if global_config.nccl_mode == cupy:")
+    if global_config.nccl_mode == "cupy":
         return CupyNcclGroup(world_size, rank, group_name)
     elif global_config.nccl_mode == "xla_extension":
-        #print("elif global_config.nccl_mode == xla_extension:")
         return XlaNcclGroup(world_size, rank, group_name)
     else:
         raise ValueError(f"nccl mode {global_config.nccl_mode} is illegal")
@@ -85,12 +83,7 @@ class GroupManager:
         self._name_group_map = {}
         self._group_name_map = {}
 
-    
     def create_collective_group(self, backend, world_size, rank, group_name):
-        import sys
-        with open("/SSD/YG/alpa/ray/debug.txt", "a") as f:
-            print("GroupManager.create_collective_group", flush=True, file=f)
-            print(f"who call? : {sys._getframe().f_back.f_code.co_name}", flush=True, file=f)# init_collective_group
         """The entry to create new collective groups in the manager.
 
         Put the registration and the group information into the manager
@@ -110,10 +103,7 @@ class GroupManager:
             self._group_name_map[g] = group_name
         if backend == types.Backend.NCCL:
             logger.debug(f"Creating NCCL group: '{group_name}'...")
-            with open("/SSD/YG/alpa/ray/debug.txt", "a") as f:
-                print(f"group_name: {group_name}", flush=True, file=f)
-                print(f"{world_size}, {rank}, {group_name}", flush=True, file=f)
-            g = get_nccl_group(world_size, rank, group_name) # XLANCCLGroup
+            g = get_nccl_group(world_size, rank, group_name)
             self._name_group_map[group_name] = g
             self._group_name_map[g] = group_name
         return self._name_group_map[group_name]
@@ -159,7 +149,7 @@ def is_group_initialized(group_name):
     return _group_mgr.is_group_exist(group_name)
 
 
-def init_collective_group(world_size: int, # MeshHostWorker
+def init_collective_group(world_size: int,
                           rank: int,
                           backend=types.Backend.NCCL,
                           group_name: str = "default"):
@@ -536,7 +526,6 @@ def allgather_multigpu(output_tensor_lists: list,
     Returns:
         None
     """
-    print("allgather_multigpu")
     if not types.cupy_available():
         raise RuntimeError("Multigpu calls requires NCCL and Cupy.")
     _check_tensor_lists_input(output_tensor_lists)
@@ -750,8 +739,6 @@ def _check_and_get_group(group_name):
         try:
             # if the information is stored in an Info object,
             # get and create the group.
-            with open("/SSD/YG/alpa/ray/debug.txt", "a") as f:
-                print(f"is_group_initialized({group_name})", file=f)
             name = "info_" + group_name
             info_actor = ray.get_actor(name=name)
             ids, world_size, rank, backend = ray.get(

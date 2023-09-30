@@ -443,21 +443,15 @@ class NormalMeshWorkerExecutable(MeshWorkerExecutable):
         self.timer_name = get_execution_timer_name(uuid)
         self.sync_func = get_sync_func_worker(worker)
 
-    def execute_on_worker(self, input_uuids: Sequence[int], # here NormalMeshWorkerExecutable
+    def execute_on_worker(self, input_uuids: Sequence[int],
                           output_uuids: Sequence[int], sync_before: bool,
                           sync_after: bool):
         """Run the executable on the worker."""
         buffer_dict = self.worker.buffers
+
         # Get input buffers from uuids
         # Sequence[Sequence[DeviceBuffer]], shape(num_args, num_devices)
         input_bufs = [buffer_dict[x] for x in input_uuids]
-        
-        with open("/SSD/YG/alpa/ray/debug.txt", "a") as f:
-            print("NormalMeshWorkerExecutable.execute_on_worker", flush=True, file=f)
-            print(f"input_uuids: {input_uuids}", flush=True, file=f)
-            print(f"input_bufs: {input_bufs}", flush=True, file=f)
-            print(f"self.worker: {self.worker}", flush=True, file=f) # MeshHostWorker
-            print(f"buffer_dict: {buffer_dict}", flush=True, file=f)
 
         if global_config.enable_overlapping:
             xe.computation_wait_events(input_uuids, self.worker.backend)
@@ -465,43 +459,10 @@ class NormalMeshWorkerExecutable(MeshWorkerExecutable):
         # Execute the executable
         timers(self.timer_name).start(self.sync_func if sync_before else None)
         try:
-            # load를 어디서 하지??
-            # check. input_bufs ==> 이걸 All-gather해서 들고와야할 듯. (요걸 먼저 체크해야할 듯)
-            # async all-gather
-            # check . working-window size 만큼 hook을 걸 수 있는지 확인해야 함.
-            # -> python-level에서 그냥 working-window size만큼 짜르고 실행할까.. # 어짜피 sequential하게 comp-comm 진행할 듯 이 안에서는,
-            # parallel하게 할 순 없으니 sequential하게 넣어도 될 듯?
-            # 여기 밑에 for문으로..? -> hook을 여기 넣는 거지 *(DP, OP)다른 케이스!
-            # XLA execute
-            # TF_ASSIGN_OR_RETURN(output_buffers, executable->Execute(arg_buffers, opts,
-            #                                                returned_futures));
-            # check 2. overlapping 되는지 어케 알지? nsys로는 안
-            # 여기서 all-gather 시험하기.
-            
-            # parameter allgather
-            from alpa.collective import collective, types
-            group_mgr = collective._group_mgr
-            with open("/SSD/YG/alpa/ray/debug.txt", "a") as f:
-                print(f"group_mgr: {group_mgr}", flush=True, file=f)
-                print(f"self.worker.num_devices: {self.worker.num_devices}", flush=True, file=f)
-            collective.init_collective_group(
-                world_size=self.worker.num_devices,
-                rank=0,
-                backend=types.Backedn.NCCL,
-                group_name="test for param all-gather"
-            )
-            g = group_mgr._name_group_map["test for param all-gather"]
-            g.broadcast_partialgpu(tensors=input_bufs)
-            #self.worker.run_resharding_broadcast_task(
-            #group_name = self.worker.group_name
             output_bufs = self.compiled.execute_sharded_on_local_devices(
                 input_bufs)
-            with open("/SSD/YG/alpa/ray/debug.txt", "a") as f:
-                print("[SUCCESS]", flush=True, file=f)
         except RuntimeError:
             ray.actor.exit_actor()
-            with open("/SSD/YG/alpa/ray/debug.txt", "a") as f:
-                print("[RUNTIMEERROR]", flush=True, file=f)
         timers(self.timer_name).stop(self.sync_func if sync_after else None)
 
         # Store output buffers
@@ -1038,7 +999,7 @@ class PartialGradAccMeshWorkerExecutable(NormalMeshWorkerExecutable):
                                         "XLA_SKIP_NCCL_COLLECTIVE_IDS")
 
     # pylint: disable=arguments-differ
-    def execute_on_worker(self, input_uuids: Sequence[int], # here after AllocZeroBufferWorkerExecutable.execute_on_worker
+    def execute_on_worker(self, input_uuids: Sequence[int],
                           output_uuids: Sequence[int], sync_before: bool,
                           sync_after: bool, skip_grad_sync: bool):
         """Run the executable on the worker."""
@@ -1072,7 +1033,7 @@ class AllocZeroBufferDriverExecutable(MeshDriverExecutable):
             grad_avals, grad_sharding_specs)
 
         self.exec_uuid = next_mesh_executable_uuid()
-        if isinstance(physical_mesh, DistributedPhysicalDeviceMesh): # here
+        if isinstance(physical_mesh, DistributedPhysicalDeviceMesh):
             for w in physical_mesh.workers:
                 w.put_executable.remote(self.exec_uuid,
                                         AllocZeroBufferWorkerExecutable,

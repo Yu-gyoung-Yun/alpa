@@ -35,7 +35,7 @@ while [[ "$#" -gt 0 ]]; do
     esac
 done
 
-export XLA_PYTHON_CLIENT_PREALLOCATE=false
+export XLA_PYTHON_CLIENT_PREALLOCATE=false # global_env
 ray stop --force
 mkdir -p ./output/${bs}
 NCCL_P2P_LEVEL=PIX NCCL_SOCKET_IFNAME=SYS NCCL_SHM_DISABLE=1 NCCL_INCLUDE_DIR="/usr/include/" NCCL_LIB_DIR="/usr/lib/" USE_SYSTEM_NCCL=1 

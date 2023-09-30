@@ -237,15 +237,14 @@ class XLANCCLGroup(BaseGroup):
             None
         """
         root_rank = 0
-        with open("/SSD/YG/alpa/ray/debug.txt", "a") as f:
-            print("NCCLGRoup.broadcast_partialgpu", flush=True, file=f)
+
         self.create_nccl_broadcast_communicator(
             broadcast_options.comm_key, broadcast_options.world_size,
             broadcast_options.devices_ids,
             broadcast_options.devices_global_rank)
         key = self._dev_comm_uids[broadcast_options.comm_key]
         is_receiver = broadcast_options.devices_global_rank[0] != 0
-        self.xla_comm_group.nccl_broadcast_partial_gpus( # xla 내장 함수
+        self.xla_comm_group.nccl_broadcast_partial_gpus(
             key, tensors, broadcast_options.local_start_pos_list,
             broadcast_options.n_elements, root_rank, is_receiver,
             self.use_default_stream)

@@ -62,8 +62,6 @@ ray_worker = try_import_ray_worker()
 
 if global_config.backend == "gpu" and global_config.has_cuda:
     from alpa.collective import worker_nccl_util
-from alpa.collective.collective import allgather
-
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -277,12 +275,7 @@ class MeshHostWorker:
         if uuid in self.executables:
             del self.executables[uuid]
 
-    def run_executable(self, uuid: int, *args, **kwargs): # MeshHostWorker
-        with open("/SSD/YG/alpa/ray/debug.txt", "a") as f:
-            print(f"uuid: {uuid}", flush=True, file=f)
-            print(f"self.executables[uuid]: {self.executables[uuid].execute_on_worker}", flush=True, file=f)
-            # <alpa.mesh_executable.PartialGradAccMeshWorkerExecutable object at 0x7f6a50390940>
-            # <alpa.pipeline_parallel.pipeshard_executable.PipeshardMeshWorkerExecutable object at 0x7f245c3e62b0>
+    def run_executable(self, uuid: int, *args, **kwargs):
         self.executables[uuid].execute_on_worker(*args, **kwargs)
 
     def get_exec_hlo_text(self, uuid: int):
@@ -374,7 +367,7 @@ class MeshHostWorker:
 
     ##### Cross Mesh Resharding Related Functions #####
     @staticmethod
-    def init_collective_group(world_size, rank, backend, group_name): # here for worker
+    def init_collective_group(world_size, rank, backend, group_name):
         """Initialize the collective group eagerly."""
         col.init_collective_group(world_size,
                                   rank,
@@ -396,33 +389,6 @@ class MeshHostWorker:
         assert col.get_rank(group_name) == my_rank
         g = col.check_and_get_group(group_name)
         g.create_p2p_communicator(my_gpu_idx, peer_rank, peer_gpu_idx, nccl_uid)
-    
-    @staticmethod
-    def intra_allgather(tensor_list: list, tensor, group_name: str = "default"): # MeshHostWorker
-        allgather(tensor_list, tensor, group_name)
-        with open("/SSD/YG/alpa/ray/debug.txt", "a") as f:
-            print("well done!", file=f)
-    
-    @staticmethod
-    async def send_all_gather_async(tensor_list: list, tensor, group_name: str = "default"):
-        # ray AllGather inside the node
-        assert col.is_group_initialized(group_name)
-        print("started")
-        await asyncio.sleep(2) # concurrent workload here
-        print("finished")
-        '''from alpa.collective import types
-        _check_single_tensor_input(tensor)
-        _check_tensor_list_input(tensor_list)
-        g = col.check_and_get_group(group_name) # _check_and_get_group
-        if len(tensor_list) != g.world_size:
-            # Typically CLL lib requires len(tensor_list) >= world_size;
-            # Here we make it more strict: len(tensor_list) == world_size.
-            raise RuntimeError(
-                "The length of the tensor list operands to allgather "
-                "must be equal to world_size.")
-        opts = types.AllGatherOptions()
-        g.allgather([tensor_list], [tensor], opts)'''
-
 
     @staticmethod
     def init_broadcast_communicator(group_name, comm_key, world_size,
@@ -536,7 +502,7 @@ class MeshHostWorker:
                                       uuid,
                                       ary_uuid,
                                       set_empty_buffer=True):
-        task: ReshardingBroadcastTask = self.broadcast_tasks[uuid] # ["broadcast_specs", "group_name"]
+        task: ReshardingBroadcastTask = self.broadcast_tasks[uuid]
         group_name = task.group_name
         broadcast_specs = task.broadcast_specs
         if set_empty_buffer and ary_uuid not in self.buffers:

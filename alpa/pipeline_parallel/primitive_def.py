@@ -11,17 +11,13 @@ from alpa.util import new_jaxpr_eqn
 
 ########## Public APIs ##########
 
-# The JAX traceability property is satisfied as long as the function is written in terms of JAX primitives.
 # Define a Jax primitive to mark start/end of a pipeline computation.
-# There are pre-defined JAX primitives corresponding to most XLA operations, e.g., add, matmul, sin, cos, indexing.
 pipeline_p = Primitive("pipeline_marker")
 
 
 def mark_pipeline_boundary():
     """Mark the boundary of pipeline layers. We reuse pipeline_marker for this
     functionality."""
-    #  Note that the traced arguments must be passed as positional arguments
-    #to `bind`. 
     return pipeline_p.bind(name="boundary", mark_type="boundary")
 
 

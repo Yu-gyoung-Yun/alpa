@@ -113,8 +113,6 @@ def create_nccl_communicator(world_size, nccl_unique_id, rank):
         comm (nccl.ncclComm_t): an NCCL communicator.
     """
     comm = NcclCommunicator(world_size, nccl_unique_id, rank)
-    with open("/SSD/YG/alpa/ray/debug.txt", "a") as f:
-        print(f"successfully create_nccl_communicator", flush=True, file=f)
     return comm
 
 

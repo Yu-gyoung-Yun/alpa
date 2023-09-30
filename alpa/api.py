@@ -119,11 +119,7 @@ class ParallelizedFunc:
         """Launch the computation on the driver."""
         executable, _, out_tree, args_flat = (
             self._decode_args_and_get_executable(*args))
-        #print(f"out_tree: {out_tree}") # <function transformation_with_aux.<locals>.<lambda> at 0x7f4171d5f0d0>
-        #print(f"executable: {executable}") # <alpa.pipeline_parallel.pipeshard_executable.PipeshardDriverExecutable object 
         out = executable.launch_on_driver(*args_flat)
-        #print(f"out: {out}") # <alpa.device_mesh.DistributedArray object at 0x7fb3e7de3f10>
-        #print(f"out: {tree_unflatten(out_tree(), out)}") # (TrainState(step=<alpa.device_mesh.DistributedArray object at 0x7fa4dde45970>, apply_fn=<bound metho
         return tree_unflatten(out_tree(), out)
 
     def get_executable(self, *args):
@@ -202,7 +198,7 @@ class ParallelizedFunc:
 
 
 @lu.cache
-def _compile_parallel_executable( # here
+def _compile_parallel_executable(
     fun: lu.WrappedFun,
     in_tree: PyTreeDef,
     out_tree_thunk: Callable[[], PyTreeDef],

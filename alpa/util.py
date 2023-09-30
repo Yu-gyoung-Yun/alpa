@@ -692,7 +692,7 @@ def process_remat(closed_jaxpr: ClosedJaxpr):
     """
     # pylint: disable=import-outside-toplevel
     from alpa.pipeline_parallel.primitive_def import pipeline_p
-    #print("process_remat") #  Not here
+
     def only_create_consts(jaxpr: Jaxpr):
         const_vars = OrderedSet()
         for eqn in jaxpr.eqns:

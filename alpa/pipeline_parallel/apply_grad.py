@@ -356,10 +356,8 @@ def split_compute_grad_and_apply_grad(closed_jaxpr: ClosedJaxpr, gensym_fn,
     by `alpa.grad`."""
     # Locate the marker
     split_eqn = None
-    #print(f"OG.closed_jaxpr: {closed_jaxpr}")
     for idx, eqn in enumerate(closed_jaxpr.eqns):
-        #print(f"{idx}, {eqn}")
-        if eqn.primitive is pipeline_p and eqn.params['mark_type'] == 'grad': # pipeline_p.bind(name="boundary", mark_type="boundary")
+        if eqn.primitive is pipeline_p and eqn.params['mark_type'] == 'grad':
             split_eqn = eqn
             split_idx = idx
     if split_eqn is None:

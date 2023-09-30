@@ -26,7 +26,7 @@ class StreamPool:
         device_idx (int): the absolute index of the device for this pool.
     """
 
-    def __init__(self, device_idx): # here
+    def __init__(self, device_idx):
         self.device_idx = device_idx
 
         self._initialized = False
@@ -79,16 +79,12 @@ _device_stream_pool_map = {}
 
 
 def _init_stream_pool():
-    with open("/SSD/YG/alpa/ray/debug.txt", "a") as f:
-        print("[_init_stream_pool]", flush=True, file=f)
     for i in range(MAX_GPU_PER_ACTOR):
         _device_stream_pool_map[i] = StreamPool(i)
 
 
 def get_stream_pool(device_idx):
     """Get the CUDA stream pool of a GPU device."""
-    with open("/SSD/YG/alpa/ray/debug.txt", "a") as f:
-        print("[get_stream_pool]", flush=True, file=f)
     # In case there will be multiple threads writing to the pool.
     lock = threading.Lock()
     with lock:

@@ -209,9 +209,6 @@ class NCCLGroup(BaseGroup):
         Returns:
             communicator: the NCCL communicator corresponded to the devices.
         """
-        with open("/SSD/YG/alpa/ray/debug.txt", "a") as f:
-            print("[STREAM]", flush=True, file=f)
-
         if not comm_key:
             raise RuntimeError("Got empty communicator key.")
 
@@ -539,8 +536,6 @@ class NCCLGroup(BaseGroup):
         self._dev_comm_map[comm_key] = [comm]
         self._dev_streams_map[comm_key] = [stream]
         self._dev_event_map[comm_key] = [event]
-        with open("/SSD/YG/alpa/ray/debug.txt", "a") as f:
-            print("_get_nccl_p2p_communicator", flush=True, file=f)
         return [comm]
 
     def _generate_group_key(self, comm_key):

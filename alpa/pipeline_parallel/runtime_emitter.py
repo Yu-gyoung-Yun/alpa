@@ -711,7 +711,6 @@ class PipelineInstEmitter:
         before: a, b, c, d
         after (b, d are batch args and #mb=2): a, b0, b1, c, d0, d1
         """
-        print("_compile_split_input_to_microbatches")
         donated_invar_set = OrderedSet()
         for stage in self.stages:
             for invar, donate in zip(stage.invars, stage.donated_invars):
@@ -931,7 +930,6 @@ class PipelineInstEmitter:
         return output_uuids
 
     def _get_outs_handler(self, mesh_output_indices, output_spec_list):
-        print(f"_get_outs_handler(self, mesh_output_indices, output_spec_list):")
         """
         Setup outs handlers that assemble RemoteBufs into DistributedArrays.
         """

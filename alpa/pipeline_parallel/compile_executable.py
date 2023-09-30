@@ -114,7 +114,7 @@ def compile_pipeshard_executable(
         batch_invars, virtual_mesh, num_microbatch, pipeline_schedule,
         default_as_option, stage_option, name_base, global_input_shardings,
         None, stage_input_shardings, parsed_ms_option)
-    #print(f"pipeshard_config: {pipeshard_config}")
+
     executable = PipeshardDriverExecutable(
         mesh_group=virtual_mesh.launched_physical_mesh_group,
         pipeshard_config=pipeshard_config,
@@ -123,7 +123,6 @@ def compile_pipeshard_executable(
         in_tree=in_tree,
         out_tree=out_tree,
         static_argnums=static_argnums)
-    #print(f"executable: {executable}") #<alpa.pipeline_parallel.pipeshard_executable.PipeshardDriverExecutable object at 0x7f9dde17a6d0>
     debug_compilation_time("driver executable")
     return executable
 
@@ -149,9 +148,8 @@ def compile_pipeshard_executable_internal(
         stage_input_shardings: Forcibly set sharding specs of input vars of
           each stage.
     """
-    print("compile_pipehshard_executable_internal")
     global_invars = closed_jaxpr.jaxpr.invars
-    gensym_func = gensym([closed_jaxpr.jaxpr]) #Produce distinct variables, printed with the optional suffix.
+    gensym_func = gensym([closed_jaxpr.jaxpr])
     inference_mode = (pipeline_schedule == "inference")
 
     (closed_jaxpr, global_outvars, jax_pipeline_layers, apply_grad_jaxpr,
@@ -309,18 +307,18 @@ def split_and_process_layers(closed_jaxpr, full_batch_closed_jaxpr,
        start of accumulate gradient.
 
     """
-    print("split_and_process_layers")
+
     # Split the jaxpr into compute_grad and apply_grad
     (closed_jaxpr, compute_grad_jaxpr, apply_grad_jaxpr,
      microbatch_bound) = split_compute_grad_and_apply_grad(
          closed_jaxpr, gensym_func, num_microbatch, inference_mode)
     global_outvars = closed_jaxpr.jaxpr.outvars
-    #print(f"== compute_grad_jaxpr: {compute_grad_jaxpr}, apply_grad_jaxpr: {apply_grad_jaxpr}")
+
     # Transform compute_grad to accumulate_grad
     # FIXME(yonghao): use apply grad jaxpr returned by this function
     (reduction_vector, post_microbatch_bound,
      _) = _get_full_batch_apply_grad(full_batch_closed_jaxpr, microbatch_bound,
-                                     num_microbatch, inference_mode) # split_compute_grad_and_apply_grad one more time!
+                                     num_microbatch, inference_mode)
     (acc_grad_jaxpr, microbatch_bound,
      accumulator_mapping) = compute_grad_to_accumulate_grad(
          compute_grad_jaxpr, microbatch_bound, reduction_vector, gensym_func,
