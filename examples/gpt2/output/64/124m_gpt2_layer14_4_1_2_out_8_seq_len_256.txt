@@ -8910,3 +8910,2420 @@ eqn: a:f16[768] b:f16[768,3072] c:f16[3072] d:f16[3072,768] e:f16[768] f:f16[768
   wz xa xb xc xd xe xf xg xh xi xj xk xl xm xn xo xp xq xr xs xt xu xv xw xx xy xz
   ya yb yc yd ye yf yg yh yi yj yk yl ym yn yo yp yq yr ys yt yu yv yw yx yy yz za
   zb zc zd ze zf zg zh zi zj zk zl zm zn zo zp zq zr zs zt zu zv zw
+eqn: a:f16[768] b:f16[768,3072] c:f16[3072] d:f16[3072,768] e:f16[768] f:f16[768] g:f16[768]
+  h:f16[768,768] i:f16[2304] j:f16[2304,768] k:f16[768] l:f16[768] m:f16[768] n:f16[768,3072]
+  o:f16[3072] p:f16[3072,768] q:f16[768] r:f16[768] s:f16[768] t:f16[768,768] u:f16[2304]
+  v:f16[2304,768] w:f16[768] x:f16[768] y:f16[1024,768] z:f16[50257,768] = pipeline_marker[
+  mark_type=end
+  name=7
+] ba bb bc bd be bf bg bh bi bj bk bl bm bn bo bp bq br bs bt bu bv bw bx by bz
+input_var_mem_size
+[qkl, qkm, qkj, qkk, qkh, qki, qkd, qke, qkb, qkc, qkf, qkg, qjz, qka, qjx, qjy, qjv, qjw, qjr, qjs, qjp, qjq, qjt, qju, qpf, qph, gla, bku, bkv, bkj, bkr, bkq, bkm, bkt, bkf, bkg, bjt, bjv, bjz, bjx, bjp, bje, biz, bka, bio, bip, bha, bil, bif, bij, bhv, bgz, bhu, bik, bgk, bgr, bfy, bga, bge, bgc, bfu, bfj, bfe, bgf, bee, bef, bdt, beb, bea, bdw, bed, bdp, bdq, bdd, bdf, bdj, bdh, bcz, bco, bcj, bdk, bby, bbz, bak, bbv, bbp, bbt, bbf, baj, bbe, bbu, zu, bab, zi, zk, zo, zm, ze, yt, yo, zp, xq, xl]
+[(768,), (768, 3072), (3072,), (3072, 768), (768,), (768,), (768,), (768, 768), (2304,), (2304, 768), (768,), (768,), (768,), (768, 3072), (3072,), (3072, 768), (768,), (768,), (768,), (768, 768), (2304,), (2304, 768), (768,), (768,), (1024, 768), (50257, 768), (64, 256, 768), (64, 256, 3072), (3072, 768), (64, 256, 3072), (64, 256, 3072), (64, 256, 3072), (64, 256, 3072), (64, 256, 3072), (64, 256, 768), (768, 3072), (64, 256, 768), (64, 256, 1), (1, 1, 768), (64, 256, 1), (64, 256), (64, 256), (64, 256, 768), (64, 256, 768), (64, 256, 768), (768, 768), (64, 256, 12, 64), (64, 12, 256, 1), (64, 12, 256, 256), (64, 12, 256, 1), (64, 256, 12, 64), (64, 256, 12, 64), (), (64, 12, 256, 256), (64, 256, 768), (768, 2304), (64, 256, 768), (64, 256, 1), (1, 1, 768), (64, 256, 1), (64, 256), (64, 256), (64, 256, 768), (64, 256, 768), (64, 256, 3072), (3072, 768), (64, 256, 3072), (64, 256, 3072), (64, 256, 3072), (64, 256, 3072), (64, 256, 3072), (64, 256, 768), (768, 3072), (64, 256, 768), (64, 256, 1), (1, 1, 768), (64, 256, 1), (64, 256), (64, 256), (64, 256, 768), (64, 256, 768), (64, 256, 768), (768, 768), (64, 256, 12, 64), (64, 12, 256, 1), (64, 12, 256, 256), (64, 12, 256, 1), (64, 256, 12, 64), (64, 256, 12, 64), (), (64, 12, 256, 256), (64, 256, 768), (768, 2304), (64, 256, 768), (64, 256, 1), (1, 1, 768), (64, 256, 1), (64, 256), (64, 256), (64, 256, 768), (64, 256, 768), (64, 256, 1024), (64, 256, 50257)]
+param_size: 1.8894989509135485 [GiB] 
+len stages: 8
+_compile_split_input_to_microbatches
+_get_outs_handler(self, mesh_output_indices, output_spec_list):
+launch_on_driver
+final_time:  31.209773302078247
+launch_on_driver
+final_time:  0.01276087760925293
+launch_on_driver
+final_time:  0.010292291641235352
+launch_on_driver
+final_time:  0.009231090545654297
+launch_on_driver
+final_time:  0.009218215942382812
+launch_on_driver
+final_time:  0.008839607238769531
+launch_on_driver
+final_time:  0.009429454803466797
+launch_on_driver
+final_time:  0.009332418441772461
+launch_on_driver
+final_time:  0.01338958740234375
+launch_on_driver
+final_time:  0.00964498519897461
+launch_on_driver
+final_time:  0.009932279586791992
+launch_on_driver
+final_time:  0.011193990707397461
+launch_on_driver
+final_time:  0.010757684707641602
+launch_on_driver
+final_time:  0.013637781143188477
+launch_on_driver
+final_time:  0.009198904037475586
+launch_on_driver
+final_time:  0.01086568832397461
+launch_on_driver
+final_time:  0.012421369552612305
+launch_on_driver
+final_time:  0.013155221939086914
+launch_on_driver
+final_time:  0.011105537414550781
+launch_on_driver
+final_time:  0.011662483215332031
+launch_on_driver
+final_time:  0.009752035140991211
+launch_on_driver
+final_time:  0.010921001434326172
+launch_on_driver
+final_time:  0.011156082153320312
+launch_on_driver
+final_time:  0.01076364517211914
+launch_on_driver
+final_time:  0.010231256484985352
+launch_on_driver
+final_time:  0.009891748428344727
+launch_on_driver
+final_time:  0.01021885871887207
+launch_on_driver
+final_time:  0.009760856628417969
+launch_on_driver
+final_time:  0.010276079177856445
+launch_on_driver
+final_time:  0.009894609451293945
+launch_on_driver
+final_time:  0.009923458099365234
+launch_on_driver
+final_time:  0.011604547500610352
+launch_on_driver
+final_time:  0.01024627685546875
+launch_on_driver
+final_time:  0.010370492935180664
+launch_on_driver
+final_time:  0.010553836822509766
+launch_on_driver
+final_time:  0.010037899017333984
+launch_on_driver
+final_time:  0.012695789337158203
+launch_on_driver
+final_time:  0.010648012161254883
+launch_on_driver
+final_time:  0.010190010070800781
+launch_on_driver
+final_time:  0.047318458557128906
+launch_on_driver
+final_time:  0.014208078384399414
+launch_on_driver
+final_time:  0.014319658279418945
+launch_on_driver
+final_time:  0.01393270492553711
+launch_on_driver
+final_time:  0.012987613677978516
+launch_on_driver
+final_time:  0.012308120727539062
+launch_on_driver
+final_time:  0.010664224624633789
+launch_on_driver
+final_time:  0.009611368179321289
+launch_on_driver
+final_time:  0.009664773941040039
+launch_on_driver
+final_time:  0.0097808837890625
+launch_on_driver
+final_time:  0.009668350219726562
+launch_on_driver
+final_time:  0.010565042495727539
+launch_on_driver
+final_time:  0.01021265983581543
+launch_on_driver
+final_time:  0.011214017868041992
+launch_on_driver
+final_time:  0.010524988174438477
+launch_on_driver
+final_time:  0.010506391525268555
+launch_on_driver
+final_time:  0.011967658996582031
+launch_on_driver
+final_time:  0.010762929916381836
+launch_on_driver
+final_time:  0.011126518249511719
+launch_on_driver
+final_time:  0.010053873062133789
+launch_on_driver
+final_time:  0.010052680969238281
+launch_on_driver
+final_time:  0.010081052780151367
+launch_on_driver
+final_time:  0.011037826538085938
+launch_on_driver
+final_time:  0.010725975036621094
+launch_on_driver
+final_time:  0.009863615036010742
+launch_on_driver
+final_time:  0.01090097427368164
+launch_on_driver
+final_time:  0.012267112731933594
+launch_on_driver
+final_time:  0.009918928146362305
+launch_on_driver
+final_time:  0.010243654251098633
+launch_on_driver
+final_time:  0.009988069534301758
+launch_on_driver
+final_time:  0.16398930549621582
+launch_on_driver
+final_time:  0.012668848037719727
+launch_on_driver
+final_time:  0.010561704635620117
+launch_on_driver
+final_time:  0.010606765747070312
+launch_on_driver
+final_time:  0.009979009628295898
+launch_on_driver
+final_time:  0.011294126510620117
+launch_on_driver
+final_time:  0.013315677642822266
+launch_on_driver
+final_time:  0.009693622589111328
+launch_on_driver
+final_time:  0.009714841842651367
+launch_on_driver
+final_time:  0.009598255157470703
+launch_on_driver
+final_time:  0.009929418563842773
+launch_on_driver
+final_time:  0.010304927825927734
+launch_on_driver
+final_time:  0.011789083480834961
+launch_on_driver
+final_time:  0.00958871841430664
+launch_on_driver
+final_time:  0.00990915298461914
+launch_on_driver
+final_time:  0.010442495346069336
+launch_on_driver
+final_time:  0.010581493377685547
+launch_on_driver
+final_time:  0.010559320449829102
+launch_on_driver
+final_time:  0.010140657424926758
+launch_on_driver
+final_time:  0.011911392211914062
+launch_on_driver
+final_time:  0.011455535888671875
+launch_on_driver
+final_time:  0.010199308395385742
+launch_on_driver
+final_time:  0.01183462142944336
+launch_on_driver
+final_time:  0.011137008666992188
+launch_on_driver
+final_time:  0.010810136795043945
+launch_on_driver
+final_time:  0.01089167594909668
+launch_on_driver
+final_time:  0.011586904525756836
+launch_on_driver
+final_time:  0.010563135147094727
+launch_on_driver
+final_time:  0.009831905364990234
+launch_on_driver
+final_time:  0.01063990592956543
+launch_on_driver
+final_time:  0.010149955749511719
+launch_on_driver
+final_time:  0.01015782356262207
+launch_on_driver
+final_time:  0.010505437850952148
+launch_on_driver
+final_time:  0.010307550430297852
+launch_on_driver
+final_time:  0.010325908660888672
+launch_on_driver
+final_time:  0.010113716125488281
+launch_on_driver
+final_time:  0.011489629745483398
+launch_on_driver
+final_time:  0.011354207992553711
+launch_on_driver
+final_time:  0.011641979217529297
+launch_on_driver
+final_time:  0.01235651969909668
+launch_on_driver
+final_time:  0.010173320770263672
+launch_on_driver
+final_time:  0.012451171875
+launch_on_driver
+final_time:  0.010799407958984375
+launch_on_driver
+final_time:  0.009795427322387695
+launch_on_driver
+final_time:  0.010255813598632812
+launch_on_driver
+final_time:  0.01071023941040039
+launch_on_driver
+final_time:  0.01049494743347168
+launch_on_driver
+final_time:  0.015752315521240234
+launch_on_driver
+final_time:  0.018335580825805664
+launch_on_driver
+final_time:  0.1519453525543213
+launch_on_driver
+final_time:  0.013085603713989258
+launch_on_driver
+final_time:  0.016103267669677734
+launch_on_driver
+final_time:  0.01677846908569336
+launch_on_driver
+final_time:  0.017047405242919922
+launch_on_driver
+final_time:  0.015376567840576172
+launch_on_driver
+final_time:  0.012090921401977539
+launch_on_driver
+final_time:  0.011793851852416992
+launch_on_driver
+final_time:  0.011556386947631836
+launch_on_driver
+final_time:  0.010756969451904297
+launch_on_driver
+final_time:  0.011501550674438477
+launch_on_driver
+final_time:  0.011313199996948242
+launch_on_driver
+final_time:  0.012702465057373047
+launch_on_driver
+final_time:  0.011776208877563477
+launch_on_driver
+final_time:  0.012789249420166016
+launch_on_driver
+final_time:  0.011869192123413086
+launch_on_driver
+final_time:  0.012444257736206055
+launch_on_driver
+final_time:  0.011410951614379883
+launch_on_driver
+final_time:  0.010783672332763672
+launch_on_driver
+final_time:  0.012230157852172852
+launch_on_driver
+final_time:  0.020340442657470703
+launch_on_driver
+final_time:  0.017308712005615234
+launch_on_driver
+final_time:  0.015770912170410156
+launch_on_driver
+final_time:  0.012932538986206055
+launch_on_driver
+final_time:  0.012041807174682617
+launch_on_driver
+final_time:  0.010579347610473633
+launch_on_driver
+final_time:  0.011285543441772461
+launch_on_driver
+final_time:  0.011763811111450195
+launch_on_driver
+final_time:  0.013215065002441406
+launch_on_driver
+final_time:  0.015672922134399414
+launch_on_driver
+final_time:  0.01170206069946289
+launch_on_driver
+final_time:  0.011283636093139648
+launch_on_driver
+final_time:  0.01036214828491211
+launch_on_driver
+final_time:  0.01170206069946289
+launch_on_driver
+final_time:  0.010530948638916016
+launch_on_driver
+final_time:  0.011999845504760742
+launch_on_driver
+final_time:  0.017716169357299805
+launch_on_driver
+final_time:  0.01131892204284668
+launch_on_driver
+final_time:  0.010628223419189453
+launch_on_driver
+final_time:  0.010143280029296875
+launch_on_driver
+final_time:  0.010640382766723633
+launch_on_driver
+final_time:  0.011771678924560547
+launch_on_driver
+final_time:  0.017383337020874023
+launch_on_driver
+final_time:  0.011984109878540039
+launch_on_driver
+final_time:  0.010682821273803711
+launch_on_driver
+final_time:  0.011731386184692383
+launch_on_driver
+final_time:  0.0106201171875
+launch_on_driver
+final_time:  0.010500431060791016
+launch_on_driver
+final_time:  0.3694877624511719
+launch_on_driver
+final_time:  0.017150402069091797
+launch_on_driver
+final_time:  0.017334699630737305
+launch_on_driver
+final_time:  0.012343168258666992
+launch_on_driver
+final_time:  0.015453338623046875
+launch_on_driver
+final_time:  0.013541460037231445
+launch_on_driver
+final_time:  0.0114288330078125
+launch_on_driver
+final_time:  0.014344453811645508
+launch_on_driver
+final_time:  0.01667022705078125
+launch_on_driver
+final_time:  0.012226104736328125
+launch_on_driver
+final_time:  0.011638641357421875
+launch_on_driver
+final_time:  0.011620759963989258
+launch_on_driver
+final_time:  0.012171030044555664
+launch_on_driver
+final_time:  0.011548280715942383
+launch_on_driver
+final_time:  0.01235342025756836
+launch_on_driver
+final_time:  0.013164997100830078
+launch_on_driver
+final_time:  0.016078948974609375
+launch_on_driver
+final_time:  0.011229276657104492
+launch_on_driver
+final_time:  0.010406970977783203
+launch_on_driver
+final_time:  0.017658710479736328
+launch_on_driver
+final_time:  0.012497186660766602
+launch_on_driver
+final_time:  0.011199951171875
+launch_on_driver
+final_time:  0.010637998580932617
+launch_on_driver
+final_time:  0.01006627082824707
+launch_on_driver
+final_time:  0.011059761047363281
+launch_on_driver
+final_time:  0.01010751724243164
+launch_on_driver
+final_time:  0.010900020599365234
+launch_on_driver
+final_time:  0.010262489318847656
+launch_on_driver
+final_time:  0.009283781051635742
+launch_on_driver
+final_time:  0.014641761779785156
+launch_on_driver
+final_time:  0.01591324806213379
+launch_on_driver
+final_time:  0.012142419815063477
+launch_on_driver
+final_time:  0.011646032333374023
+launch_on_driver
+final_time:  0.011979103088378906
+launch_on_driver
+final_time:  0.011747598648071289
+launch_on_driver
+final_time:  0.012278079986572266
+launch_on_driver
+final_time:  0.013395547866821289
+launch_on_driver
+final_time:  0.011240243911743164
+launch_on_driver
+final_time:  0.011767864227294922
+launch_on_driver
+final_time:  0.011676788330078125
+launch_on_driver
+final_time:  0.011349201202392578
+launch_on_driver
+final_time:  0.011851310729980469
+launch_on_driver
+final_time:  0.011474370956420898
+launch_on_driver
+final_time:  0.011931419372558594
+launch_on_driver
+final_time:  0.011893272399902344
+launch_on_driver
+final_time:  0.012406587600708008
+launch_on_driver
+final_time:  0.011284351348876953
+launch_on_driver
+final_time:  0.011863946914672852
+launch_on_driver
+final_time:  0.14033937454223633
+launch_on_driver
+final_time:  0.016427993774414062
+launch_on_driver
+final_time:  0.015038728713989258
+launch_on_driver
+final_time:  0.01330709457397461
+launch_on_driver
+final_time:  0.013257741928100586
+launch_on_driver
+final_time:  0.013571023941040039
+launch_on_driver
+final_time:  0.012762784957885742
+launch_on_driver
+final_time:  0.01163625717163086
+launch_on_driver
+final_time:  0.011226654052734375
+launch_on_driver
+final_time:  0.011213064193725586
+launch_on_driver
+final_time:  0.011326789855957031
+launch_on_driver
+final_time:  0.010975837707519531
+launch_on_driver
+final_time:  0.01090383529663086
+launch_on_driver
+final_time:  0.010590791702270508
+launch_on_driver
+final_time:  0.011118888854980469
+launch_on_driver
+final_time:  0.011847496032714844
+launch_on_driver
+final_time:  0.011642694473266602
+launch_on_driver
+final_time:  0.011982917785644531
+launch_on_driver
+final_time:  0.011559009552001953
+launch_on_driver
+final_time:  0.01181340217590332
+launch_on_driver
+final_time:  0.011933088302612305
+launch_on_driver
+final_time:  0.010380983352661133
+launch_on_driver
+final_time:  0.013470888137817383
+launch_on_driver
+final_time:  0.011823892593383789
+launch_on_driver
+final_time:  0.011174440383911133
+launch_on_driver
+final_time:  0.010707378387451172
+launch_on_driver
+final_time:  0.011895895004272461
+launch_on_driver
+final_time:  0.011154890060424805
+launch_on_driver
+final_time:  0.011424779891967773
+launch_on_driver
+final_time:  0.011835336685180664
+launch_on_driver
+final_time:  0.017939329147338867
+launch_on_driver
+final_time:  0.01307988166809082
+launch_on_driver
+final_time:  0.011496305465698242
+launch_on_driver
+final_time:  0.017540693283081055
+launch_on_driver
+final_time:  0.01366567611694336
+launch_on_driver
+final_time:  0.011162757873535156
+launch_on_driver
+final_time:  0.011563301086425781
+launch_on_driver
+final_time:  0.01095128059387207
+launch_on_driver
+final_time:  0.010959148406982422
+launch_on_driver
+final_time:  0.010550498962402344
+launch_on_driver
+final_time:  0.017950773239135742
+launch_on_driver
+final_time:  0.014722108840942383
+launch_on_driver
+final_time:  0.010695934295654297
+launch_on_driver
+final_time:  0.010848283767700195
+launch_on_driver
+final_time:  0.010314464569091797
+launch_on_driver
+final_time:  0.010592937469482422
+launch_on_driver
+final_time:  0.010437965393066406
+launch_on_driver
+final_time:  0.010719537734985352
+launch_on_driver
+final_time:  0.38214612007141113
+launch_on_driver
+final_time:  0.015692710876464844
+launch_on_driver
+final_time:  0.01263570785522461
+launch_on_driver
+final_time:  0.01153707504272461
+launch_on_driver
+final_time:  0.011481285095214844
+launch_on_driver
+final_time:  0.012364625930786133
+launch_on_driver
+final_time:  0.01089930534362793
+launch_on_driver
+final_time:  0.011207342147827148
+launch_on_driver
+final_time:  0.012909173965454102
+launch_on_driver
+final_time:  0.011605978012084961
+launch_on_driver
+final_time:  0.010050296783447266
+launch_on_driver
+final_time:  0.019168615341186523
+launch_on_driver
+final_time:  0.012746334075927734
+launch_on_driver
+final_time:  0.011881828308105469
+launch_on_driver
+final_time:  0.01128840446472168
+launch_on_driver
+final_time:  0.012166500091552734
+launch_on_driver
+final_time:  0.011383056640625
+launch_on_driver
+final_time:  0.011272430419921875
+launch_on_driver
+final_time:  0.010577201843261719
+launch_on_driver
+final_time:  0.011571407318115234
+launch_on_driver
+final_time:  0.010893583297729492
+launch_on_driver
+final_time:  0.010538816452026367
+launch_on_driver
+final_time:  0.011089086532592773
+launch_on_driver
+final_time:  0.010549545288085938
+launch_on_driver
+final_time:  0.011448383331298828
+launch_on_driver
+final_time:  0.011276960372924805
+launch_on_driver
+final_time:  0.01141047477722168
+launch_on_driver
+final_time:  0.010798215866088867
+launch_on_driver
+final_time:  0.011140823364257812
+launch_on_driver
+final_time:  0.01151275634765625
+launch_on_driver
+final_time:  0.011433124542236328
+launch_on_driver
+final_time:  0.01222538948059082
+launch_on_driver
+final_time:  0.011238574981689453
+launch_on_driver
+final_time:  0.011098861694335938
+launch_on_driver
+final_time:  0.011578083038330078
+launch_on_driver
+final_time:  0.010580301284790039
+launch_on_driver
+final_time:  0.010397195816040039
+launch_on_driver
+final_time:  0.010628938674926758
+launch_on_driver
+final_time:  0.010888099670410156
+launch_on_driver
+final_time:  0.011424541473388672
+launch_on_driver
+final_time:  0.011260032653808594
+launch_on_driver
+final_time:  0.011384963989257812
+launch_on_driver
+final_time:  0.010741472244262695
+launch_on_driver
+final_time:  0.01250004768371582
+launch_on_driver
+final_time:  0.011380434036254883
+launch_on_driver
+final_time:  0.010745048522949219
+launch_on_driver
+final_time:  0.01195073127746582
+launch_on_driver
+final_time:  0.010885953903198242
+launch_on_driver
+final_time:  0.15883421897888184
+launch_on_driver
+final_time:  0.016942262649536133
+launch_on_driver
+final_time:  0.013935089111328125
+launch_on_driver
+final_time:  0.012533187866210938
+launch_on_driver
+final_time:  0.012429952621459961
+launch_on_driver
+final_time:  0.012001514434814453
+launch_on_driver
+final_time:  0.009155511856079102
+launch_on_driver
+final_time:  0.010147333145141602
+launch_on_driver
+final_time:  0.01058506965637207
+launch_on_driver
+final_time:  0.011952877044677734
+launch_on_driver
+final_time:  0.011984109878540039
+launch_on_driver
+final_time:  0.010628461837768555
+launch_on_driver
+final_time:  0.011529922485351562
+launch_on_driver
+final_time:  0.011831521987915039
+launch_on_driver
+final_time:  0.011423826217651367
+launch_on_driver
+final_time:  0.01166081428527832
+launch_on_driver
+final_time:  0.012449264526367188
+launch_on_driver
+final_time:  0.015307426452636719
+launch_on_driver
+final_time:  0.01601266860961914
+launch_on_driver
+final_time:  0.01495981216430664
+launch_on_driver
+final_time:  0.014821290969848633
+launch_on_driver
+final_time:  0.015620231628417969
+launch_on_driver
+final_time:  0.013317346572875977
+launch_on_driver
+final_time:  0.016645431518554688
+launch_on_driver
+final_time:  0.01788806915283203
+launch_on_driver
+final_time:  0.01542806625366211
+launch_on_driver
+final_time:  0.015826940536499023
+launch_on_driver
+final_time:  0.01651763916015625
+launch_on_driver
+final_time:  0.01560068130493164
+launch_on_driver
+final_time:  0.01675271987915039
+launch_on_driver
+final_time:  0.01620030403137207
+launch_on_driver
+final_time:  0.016211271286010742
+launch_on_driver
+final_time:  0.01562809944152832
+launch_on_driver
+final_time:  0.014540672302246094
+launch_on_driver
+final_time:  0.015138387680053711
+launch_on_driver
+final_time:  0.01471710205078125
+launch_on_driver
+final_time:  0.015247344970703125
+launch_on_driver
+final_time:  0.016527652740478516
+launch_on_driver
+final_time:  0.014780521392822266
+launch_on_driver
+final_time:  0.019131898880004883
+launch_on_driver
+final_time:  0.015503168106079102
+launch_on_driver
+final_time:  0.016846895217895508
+launch_on_driver
+final_time:  0.01606273651123047
+launch_on_driver
+final_time:  0.01620197296142578
+launch_on_driver
+final_time:  0.016245126724243164
+launch_on_driver
+final_time:  0.015849828720092773
+launch_on_driver
+final_time:  0.01571035385131836
+launch_on_driver
+final_time:  0.01631784439086914
+launch_on_driver
+final_time:  0.01668405532836914
+launch_on_driver
+final_time:  0.21217679977416992
+launch_on_driver
+final_time:  0.01795196533203125
+launch_on_driver
+final_time:  0.017685651779174805
+launch_on_driver
+final_time:  0.015410900115966797
+launch_on_driver
+final_time:  0.017284154891967773
+launch_on_driver
+final_time:  0.017122507095336914
+launch_on_driver
+final_time:  0.017037630081176758
+launch_on_driver
+final_time:  0.018239498138427734
+launch_on_driver
+final_time:  0.01672077178955078
+launch_on_driver
+final_time:  0.018674850463867188
+launch_on_driver
+final_time:  0.01714634895324707
+launch_on_driver
+final_time:  0.016899824142456055
+launch_on_driver
+final_time:  0.0178070068359375
+launch_on_driver
+final_time:  0.018132686614990234
+launch_on_driver
+final_time:  0.015866756439208984
+launch_on_driver
+final_time:  0.015132665634155273
+launch_on_driver
+final_time:  0.016860485076904297
+launch_on_driver
+final_time:  0.015696287155151367
+launch_on_driver
+final_time:  0.01845717430114746
+launch_on_driver
+final_time:  0.016958951950073242
+launch_on_driver
+final_time:  0.01664447784423828
+launch_on_driver
+final_time:  0.01566934585571289
+launch_on_driver
+final_time:  0.017093658447265625
+launch_on_driver
+final_time:  0.016257524490356445
+launch_on_driver
+final_time:  0.01618170738220215
+launch_on_driver
+final_time:  0.016113758087158203
+launch_on_driver
+final_time:  0.018194198608398438
+launch_on_driver
+final_time:  0.014678955078125
+launch_on_driver
+final_time:  0.01709437370300293
+launch_on_driver
+final_time:  0.01674675941467285
+launch_on_driver
+final_time:  0.015625953674316406
+launch_on_driver
+final_time:  0.015418052673339844
+launch_on_driver
+final_time:  0.015245676040649414
+launch_on_driver
+final_time:  0.017785310745239258
+launch_on_driver
+final_time:  0.013895511627197266
+launch_on_driver
+final_time:  0.016156911849975586
+launch_on_driver
+final_time:  0.015186071395874023
+launch_on_driver
+final_time:  0.014479875564575195
+launch_on_driver
+final_time:  0.015079021453857422
+launch_on_driver
+final_time:  0.015308618545532227
+launch_on_driver
+final_time:  0.016814470291137695
+launch_on_driver
+final_time:  0.013991832733154297
+launch_on_driver
+final_time:  0.01614975929260254
+launch_on_driver
+final_time:  0.01734185218811035
+launch_on_driver
+final_time:  0.016332387924194336
+launch_on_driver
+final_time:  0.017325878143310547
+launch_on_driver
+final_time:  0.01719498634338379
+launch_on_driver
+final_time:  0.015328645706176758
+launch_on_driver
+final_time:  0.2065129280090332
+launch_on_driver
+final_time:  0.021145343780517578
+launch_on_driver
+final_time:  0.02004694938659668
+launch_on_driver
+final_time:  0.017964601516723633
+launch_on_driver
+final_time:  0.01628398895263672
+launch_on_driver
+final_time:  0.01604294776916504
+launch_on_driver
+final_time:  0.016288280487060547
+launch_on_driver
+final_time:  0.017287015914916992
+launch_on_driver
+final_time:  0.017429828643798828
+launch_on_driver
+final_time:  0.017309188842773438
+launch_on_driver
+final_time:  0.017239093780517578
+launch_on_driver
+final_time:  0.017195701599121094
+launch_on_driver
+final_time:  0.017531871795654297
+launch_on_driver
+final_time:  0.015224695205688477
+launch_on_driver
+final_time:  0.017549514770507812
+launch_on_driver
+final_time:  0.01668095588684082
+launch_on_driver
+final_time:  0.015505075454711914
+launch_on_driver
+final_time:  0.016044139862060547
+launch_on_driver
+final_time:  0.015138387680053711
+launch_on_driver
+final_time:  0.015848159790039062
+launch_on_driver
+final_time:  0.013519048690795898
+launch_on_driver
+final_time:  0.016035795211791992
+launch_on_driver
+final_time:  0.014749526977539062
+launch_on_driver
+final_time:  0.015264272689819336
+launch_on_driver
+final_time:  0.01687765121459961
+launch_on_driver
+final_time:  0.016064882278442383
+launch_on_driver
+final_time:  0.0156552791595459
+launch_on_driver
+final_time:  0.017058610916137695
+launch_on_driver
+final_time:  0.015208005905151367
+launch_on_driver
+final_time:  0.018116474151611328
+launch_on_driver
+final_time:  0.01720428466796875
+launch_on_driver
+final_time:  0.015389442443847656
+launch_on_driver
+final_time:  0.01999521255493164
+launch_on_driver
+final_time:  0.029511451721191406
+launch_on_driver
+final_time:  0.01913595199584961
+launch_on_driver
+final_time:  0.016455411911010742
+launch_on_driver
+final_time:  0.016281604766845703
+launch_on_driver
+final_time:  0.015733718872070312
+launch_on_driver
+final_time:  0.02459716796875
+launch_on_driver
+final_time:  0.015584945678710938
+launch_on_driver
+final_time:  0.015521049499511719
+launch_on_driver
+final_time:  0.016052961349487305
+launch_on_driver
+final_time:  0.016308307647705078
+launch_on_driver
+final_time:  0.01767730712890625
+launch_on_driver
+final_time:  0.01623845100402832
+launch_on_driver
+final_time:  0.01645493507385254
+launch_on_driver
+final_time:  0.015427350997924805
+launch_on_driver
+final_time:  0.017469406127929688
+launch_on_driver
+final_time:  0.20141005516052246
+launch_on_driver
+final_time:  0.017705202102661133
+launch_on_driver
+final_time:  0.0158693790435791
+launch_on_driver
+final_time:  0.014184236526489258
+launch_on_driver
+final_time:  0.01311945915222168
+launch_on_driver
+final_time:  0.020744800567626953
+launch_on_driver
+final_time:  0.01594400405883789
+launch_on_driver
+final_time:  0.018319129943847656
+launch_on_driver
+final_time:  0.01511240005493164
+launch_on_driver
+final_time:  0.025783538818359375
+launch_on_driver
+final_time:  0.018799543380737305
+launch_on_driver
+final_time:  0.02242422103881836
+launch_on_driver
+final_time:  0.015393972396850586
+launch_on_driver
+final_time:  0.012725830078125
+launch_on_driver
+final_time:  0.014008283615112305
+launch_on_driver
+final_time:  0.01377725601196289
+launch_on_driver
+final_time:  0.013300657272338867
+launch_on_driver
+final_time:  0.015954017639160156
+launch_on_driver
+final_time:  0.020410776138305664
+launch_on_driver
+final_time:  0.01613593101501465
+launch_on_driver
+final_time:  0.01363062858581543
+launch_on_driver
+final_time:  0.013961315155029297
+launch_on_driver
+final_time:  0.014658451080322266
+launch_on_driver
+final_time:  0.023491859436035156
+launch_on_driver
+final_time:  0.01627326011657715
+launch_on_driver
+final_time:  0.016821861267089844
+launch_on_driver
+final_time:  0.0162503719329834
+launch_on_driver
+final_time:  0.015288829803466797
+launch_on_driver
+final_time:  0.016005277633666992
+launch_on_driver
+final_time:  0.017374277114868164
+launch_on_driver
+final_time:  0.015032052993774414
+launch_on_driver
+final_time:  0.01599860191345215
+launch_on_driver
+final_time:  0.01669764518737793
+launch_on_driver
+final_time:  0.017154216766357422
+launch_on_driver
+final_time:  0.017797231674194336
+launch_on_driver
+final_time:  0.015349388122558594
+launch_on_driver
+final_time:  0.01629328727722168
+launch_on_driver
+final_time:  0.014302730560302734
+launch_on_driver
+final_time:  0.01607537269592285
+launch_on_driver
+final_time:  0.015873432159423828
+launch_on_driver
+final_time:  0.015095949172973633
+launch_on_driver
+final_time:  0.01714801788330078
+launch_on_driver
+final_time:  0.018860578536987305
+launch_on_driver
+final_time:  0.01921248435974121
+launch_on_driver
+final_time:  0.017811298370361328
+launch_on_driver
+final_time:  0.01457357406616211
+launch_on_driver
+final_time:  0.024427413940429688
+launch_on_driver
+final_time:  0.020147085189819336
+launch_on_driver
+final_time:  0.21976566314697266
+launch_on_driver
+final_time:  0.025193452835083008
+launch_on_driver
+final_time:  0.015765905380249023
+launch_on_driver
+final_time:  0.015181303024291992
+launch_on_driver
+final_time:  0.014457464218139648
+launch_on_driver
+final_time:  0.018549680709838867
+launch_on_driver
+final_time:  0.022834300994873047
+launch_on_driver
+final_time:  0.02069878578186035
+launch_on_driver
+final_time:  0.021363019943237305
+launch_on_driver
+final_time:  0.018702030181884766
+launch_on_driver
+final_time:  0.015060186386108398
+launch_on_driver
+final_time:  0.014260053634643555
+launch_on_driver
+final_time:  0.018881559371948242
+launch_on_driver
+final_time:  0.0216064453125
+launch_on_driver
+final_time:  0.013637781143188477
+launch_on_driver
+final_time:  0.014584779739379883
+launch_on_driver
+final_time:  0.01888728141784668
+launch_on_driver
+final_time:  0.014912128448486328
+launch_on_driver
+final_time:  0.012916803359985352
+launch_on_driver
+final_time:  0.017741680145263672
+launch_on_driver
+final_time:  0.030150651931762695
+launch_on_driver
+final_time:  0.020287513732910156
+launch_on_driver
+final_time:  0.018781423568725586
+launch_on_driver
+final_time:  0.01657843589782715
+launch_on_driver
+final_time:  0.01750922203063965
+launch_on_driver
+final_time:  0.021823883056640625
+launch_on_driver
+final_time:  0.018051862716674805
+launch_on_driver
+final_time:  0.015911340713500977
+launch_on_driver
+final_time:  0.01833486557006836
+launch_on_driver
+final_time:  0.02164006233215332
+launch_on_driver
+final_time:  0.01752781867980957
+launch_on_driver
+final_time:  0.017643451690673828
+launch_on_driver
+final_time:  0.015236377716064453
+launch_on_driver
+final_time:  0.01336669921875
+launch_on_driver
+final_time:  0.0149078369140625
+launch_on_driver
+final_time:  0.014850854873657227
+launch_on_driver
+final_time:  0.016329050064086914
+launch_on_driver
+final_time:  0.015533208847045898
+launch_on_driver
+final_time:  0.015314817428588867
+launch_on_driver
+final_time:  0.016988515853881836
+launch_on_driver
+final_time:  0.01478886604309082
+launch_on_driver
+final_time:  0.015619754791259766
+launch_on_driver
+final_time:  0.01564931869506836
+launch_on_driver
+final_time:  0.015210151672363281
+launch_on_driver
+final_time:  0.015520572662353516
+launch_on_driver
+final_time:  0.015151739120483398
+launch_on_driver
+final_time:  0.01732015609741211
+launch_on_driver
+final_time:  0.015367507934570312
+launch_on_driver
+final_time:  0.20633554458618164
+launch_on_driver
+final_time:  0.023919105529785156
+launch_on_driver
+final_time:  0.01798725128173828
+launch_on_driver
+final_time:  0.018216609954833984
+launch_on_driver
+final_time:  0.015785932540893555
+launch_on_driver
+final_time:  0.016362667083740234
+launch_on_driver
+final_time:  0.016771793365478516
+launch_on_driver
+final_time:  0.01709127426147461
+launch_on_driver
+final_time:  0.01525115966796875
+launch_on_driver
+final_time:  0.017301559448242188
+launch_on_driver
+final_time:  0.017177820205688477
+launch_on_driver
+final_time:  0.014541387557983398
+launch_on_driver
+final_time:  0.018596410751342773
+launch_on_driver
+final_time:  0.01603388786315918
+launch_on_driver
+final_time:  0.01685953140258789
+launch_on_driver
+final_time:  0.015234708786010742
+launch_on_driver
+final_time:  0.01561284065246582
+launch_on_driver
+final_time:  0.015941858291625977
+launch_on_driver
+final_time:  0.015338420867919922
+launch_on_driver
+final_time:  0.015803098678588867
+launch_on_driver
+final_time:  0.015681028366088867
+launch_on_driver
+final_time:  0.01600813865661621
+launch_on_driver
+final_time:  0.016330957412719727
+launch_on_driver
+final_time:  0.015502214431762695
+launch_on_driver
+final_time:  0.01646113395690918
+launch_on_driver
+final_time:  0.015204906463623047
+launch_on_driver
+final_time:  0.015092611312866211
+launch_on_driver
+final_time:  0.017148733139038086
+launch_on_driver
+final_time:  0.015360593795776367
+launch_on_driver
+final_time:  0.0180814266204834
+launch_on_driver
+final_time:  0.015768766403198242
+launch_on_driver
+final_time:  0.015201330184936523
+launch_on_driver
+final_time:  0.01576542854309082
+launch_on_driver
+final_time:  0.017915964126586914
+launch_on_driver
+final_time:  0.016912221908569336
+launch_on_driver
+final_time:  0.01875925064086914
+launch_on_driver
+final_time:  0.01729130744934082
+launch_on_driver
+final_time:  0.01700758934020996
+launch_on_driver
+final_time:  0.01580023765563965
+launch_on_driver
+final_time:  0.016193389892578125
+launch_on_driver
+final_time:  0.017761945724487305
+launch_on_driver
+final_time:  0.017722129821777344
+launch_on_driver
+final_time:  0.01720571517944336
+launch_on_driver
+final_time:  0.018209457397460938
+launch_on_driver
+final_time:  0.016914844512939453
+launch_on_driver
+final_time:  0.01811528205871582
+launch_on_driver
+final_time:  0.1967175006866455
+launch_on_driver
+final_time:  0.01626276969909668
+launch_on_driver
+final_time:  0.017651796340942383
+launch_on_driver
+final_time:  0.23624515533447266
+launch_on_driver
+final_time:  0.0159304141998291
+launch_on_driver
+final_time:  0.022660017013549805
+launch_on_driver
+final_time:  0.014892578125
+launch_on_driver
+final_time:  0.014040708541870117
+launch_on_driver
+final_time:  0.014178752899169922
+launch_on_driver
+final_time:  0.017737865447998047
+launch_on_driver
+final_time:  0.019690513610839844
+launch_on_driver
+final_time:  0.013693571090698242
+launch_on_driver
+final_time:  0.015899658203125
+launch_on_driver
+final_time:  0.014937162399291992
+launch_on_driver
+final_time:  0.014889001846313477
+launch_on_driver
+final_time:  0.01820826530456543
+launch_on_driver
+final_time:  0.027013778686523438
+launch_on_driver
+final_time:  0.017784833908081055
+launch_on_driver
+final_time:  0.014892101287841797
+launch_on_driver
+final_time:  0.02213740348815918
+launch_on_driver
+final_time:  0.01923966407775879
+launch_on_driver
+final_time:  0.015271902084350586
+launch_on_driver
+final_time:  0.015601873397827148
+launch_on_driver
+final_time:  0.017076730728149414
+launch_on_driver
+final_time:  0.014835357666015625
+launch_on_driver
+final_time:  0.013657569885253906
+launch_on_driver
+final_time:  0.014116525650024414
+launch_on_driver
+final_time:  0.02441549301147461
+launch_on_driver
+final_time:  0.016962051391601562
+launch_on_driver
+final_time:  0.021172523498535156
+launch_on_driver
+final_time:  0.01884317398071289
+launch_on_driver
+final_time:  0.01675701141357422
+launch_on_driver
+final_time:  0.015906333923339844
+launch_on_driver
+final_time:  0.015967845916748047
+launch_on_driver
+final_time:  0.01609325408935547
+launch_on_driver
+final_time:  0.015215873718261719
+launch_on_driver
+final_time:  0.0168154239654541
+launch_on_driver
+final_time:  0.015559673309326172
+launch_on_driver
+final_time:  0.015937328338623047
+launch_on_driver
+final_time:  0.016512632369995117
+launch_on_driver
+final_time:  0.01594996452331543
+launch_on_driver
+final_time:  0.01641106605529785
+launch_on_driver
+final_time:  0.015138626098632812
+launch_on_driver
+final_time:  0.017409801483154297
+launch_on_driver
+final_time:  0.015895843505859375
+launch_on_driver
+final_time:  0.016168594360351562
+launch_on_driver
+final_time:  0.016312360763549805
+launch_on_driver
+final_time:  0.015096902847290039
+launch_on_driver
+final_time:  0.016084909439086914
+launch_on_driver
+final_time:  0.014870882034301758
+launch_on_driver
+final_time:  0.014848709106445312
+launch_on_driver
+final_time:  0.17674589157104492
+launch_on_driver
+final_time:  0.015402793884277344
+launch_on_driver
+final_time:  0.014027833938598633
+launch_on_driver
+final_time:  0.012340784072875977
+launch_on_driver
+final_time:  0.013610124588012695
+launch_on_driver
+final_time:  0.012490510940551758
+launch_on_driver
+final_time:  0.012365341186523438
+launch_on_driver
+final_time:  0.012758016586303711
+launch_on_driver
+final_time:  0.011148452758789062
+launch_on_driver
+final_time:  0.012462377548217773
+launch_on_driver
+final_time:  0.0184171199798584
+launch_on_driver
+final_time:  0.012662172317504883
+launch_on_driver
+final_time:  0.01201176643371582
+launch_on_driver
+final_time:  0.010629415512084961
+launch_on_driver
+final_time:  0.01206660270690918
+launch_on_driver
+final_time:  0.010619878768920898
+launch_on_driver
+final_time:  0.011758804321289062
+launch_on_driver
+final_time:  0.011618852615356445
+launch_on_driver
+final_time:  0.011693954467773438
+launch_on_driver
+final_time:  0.01199030876159668
+launch_on_driver
+final_time:  0.011574506759643555
+launch_on_driver
+final_time:  0.012840986251831055
+launch_on_driver
+final_time:  0.011626005172729492
+launch_on_driver
+final_time:  0.012099027633666992
+launch_on_driver
+final_time:  0.013171195983886719
+launch_on_driver
+final_time:  0.011691093444824219
+launch_on_driver
+final_time:  0.01245570182800293
+launch_on_driver
+final_time:  0.0115203857421875
+launch_on_driver
+final_time:  0.012191057205200195
+launch_on_driver
+final_time:  0.012105226516723633
+launch_on_driver
+final_time:  0.01123356819152832
+launch_on_driver
+final_time:  0.011968374252319336
+launch_on_driver
+final_time:  0.012017965316772461
+launch_on_driver
+final_time:  0.011168479919433594
+launch_on_driver
+final_time:  0.01076650619506836
+launch_on_driver
+final_time:  0.010862588882446289
+launch_on_driver
+final_time:  0.011678695678710938
+launch_on_driver
+final_time:  0.010670900344848633
+launch_on_driver
+final_time:  0.01159811019897461
+launch_on_driver
+final_time:  0.010552167892456055
+launch_on_driver
+final_time:  0.011220693588256836
+launch_on_driver
+final_time:  0.011339664459228516
+launch_on_driver
+final_time:  0.011286258697509766
+launch_on_driver
+final_time:  0.012027978897094727
+launch_on_driver
+final_time:  0.010761499404907227
+launch_on_driver
+final_time:  0.011184453964233398
+launch_on_driver
+final_time:  0.011308670043945312
+launch_on_driver
+final_time:  0.010352611541748047
+launch_on_driver
+final_time:  0.15189337730407715
+launch_on_driver
+final_time:  0.016031503677368164
+launch_on_driver
+final_time:  0.013319730758666992
+launch_on_driver
+final_time:  0.010986804962158203
+launch_on_driver
+final_time:  0.010800838470458984
+launch_on_driver
+final_time:  0.012234210968017578
+launch_on_driver
+final_time:  0.010570287704467773
+launch_on_driver
+final_time:  0.011721134185791016
+launch_on_driver
+final_time:  0.010135889053344727
+launch_on_driver
+final_time:  0.010651111602783203
+launch_on_driver
+final_time:  0.010733604431152344
+launch_on_driver
+final_time:  0.010383844375610352
+launch_on_driver
+final_time:  0.011168241500854492
+launch_on_driver
+final_time:  0.010660171508789062
+launch_on_driver
+final_time:  0.011244058609008789
+launch_on_driver
+final_time:  0.010118961334228516
+launch_on_driver
+final_time:  0.010708808898925781
+launch_on_driver
+final_time:  0.010922431945800781
+launch_on_driver
+final_time:  0.010657787322998047
+launch_on_driver
+final_time:  0.011077165603637695
+launch_on_driver
+final_time:  0.01049351692199707
+launch_on_driver
+final_time:  0.01069188117980957
+launch_on_driver
+final_time:  0.010920524597167969
+launch_on_driver
+final_time:  0.010584592819213867
+launch_on_driver
+final_time:  0.011039257049560547
+launch_on_driver
+final_time:  0.010748624801635742
+launch_on_driver
+final_time:  0.011463642120361328
+launch_on_driver
+final_time:  0.010274648666381836
+launch_on_driver
+final_time:  0.011351585388183594
+launch_on_driver
+final_time:  0.01192784309387207
+launch_on_driver
+final_time:  0.011445999145507812
+launch_on_driver
+final_time:  0.011955738067626953
+launch_on_driver
+final_time:  0.011116504669189453
+launch_on_driver
+final_time:  0.011615991592407227
+launch_on_driver
+final_time:  0.013631582260131836
+launch_on_driver
+final_time:  0.011845588684082031
+launch_on_driver
+final_time:  0.011451482772827148
+launch_on_driver
+final_time:  0.00937509536743164
+launch_on_driver
+final_time:  0.012392997741699219
+launch_on_driver
+final_time:  0.010178804397583008
+launch_on_driver
+final_time:  0.010411500930786133
+launch_on_driver
+final_time:  0.01110982894897461
+launch_on_driver
+final_time:  0.010159015655517578
+launch_on_driver
+final_time:  0.012312650680541992
+launch_on_driver
+final_time:  0.010428190231323242
+launch_on_driver
+final_time:  0.010516166687011719
+launch_on_driver
+final_time:  0.010839700698852539
+launch_on_driver
+final_time:  0.009826183319091797
+launch_on_driver
+final_time:  0.15795445442199707
+launch_on_driver
+final_time:  0.015141010284423828
+launch_on_driver
+final_time:  0.012940645217895508
+launch_on_driver
+final_time:  0.01340484619140625
+launch_on_driver
+final_time:  0.011176586151123047
+launch_on_driver
+final_time:  0.011066436767578125
+launch_on_driver
+final_time:  0.010459661483764648
+launch_on_driver
+final_time:  0.012197256088256836
+launch_on_driver
+final_time:  0.009762287139892578
+launch_on_driver
+final_time:  0.010610103607177734
+launch_on_driver
+final_time:  0.011026859283447266
+launch_on_driver
+final_time:  0.010306119918823242
+launch_on_driver
+final_time:  0.012994766235351562
+launch_on_driver
+final_time:  0.011267662048339844
+launch_on_driver
+final_time:  0.011913299560546875
+launch_on_driver
+final_time:  0.01106882095336914
+launch_on_driver
+final_time:  0.010896682739257812
+launch_on_driver
+final_time:  0.010826349258422852
+launch_on_driver
+final_time:  0.009976387023925781
+launch_on_driver
+final_time:  0.012293815612792969
+launch_on_driver
+final_time:  0.011149406433105469
+launch_on_driver
+final_time:  0.010177135467529297
+launch_on_driver
+final_time:  0.010878324508666992
+launch_on_driver
+final_time:  0.010615110397338867
+launch_on_driver
+final_time:  0.010608673095703125
+launch_on_driver
+final_time:  0.010411262512207031
+launch_on_driver
+final_time:  0.010242223739624023
+launch_on_driver
+final_time:  0.009916067123413086
+launch_on_driver
+final_time:  0.010190010070800781
+launch_on_driver
+final_time:  0.010454654693603516
+launch_on_driver
+final_time:  0.010149717330932617
+launch_on_driver
+final_time:  0.01076817512512207
+launch_on_driver
+final_time:  0.01022648811340332
+launch_on_driver
+final_time:  0.010460853576660156
+launch_on_driver
+final_time:  0.01110386848449707
+launch_on_driver
+final_time:  0.010150432586669922
+launch_on_driver
+final_time:  0.011207103729248047
+launch_on_driver
+final_time:  0.010077714920043945
+launch_on_driver
+final_time:  0.01037740707397461
+launch_on_driver
+final_time:  0.010738611221313477
+launch_on_driver
+final_time:  0.010465621948242188
+launch_on_driver
+final_time:  0.010748624801635742
+launch_on_driver
+final_time:  0.01043248176574707
+launch_on_driver
+final_time:  0.013154745101928711
+launch_on_driver
+final_time:  0.013902425765991211
+launch_on_driver
+final_time:  0.011263370513916016
+launch_on_driver
+final_time:  0.0115966796875
+launch_on_driver
+final_time:  0.019858598709106445
+launch_on_driver
+final_time:  0.1753373146057129
+launch_on_driver
+final_time:  0.020985126495361328
+launch_on_driver
+final_time:  0.012590169906616211
+launch_on_driver
+final_time:  0.011877298355102539
+launch_on_driver
+final_time:  0.010605096817016602
+launch_on_driver
+final_time:  0.012462139129638672
+launch_on_driver
+final_time:  0.010523319244384766
+launch_on_driver
+final_time:  0.009590864181518555
+launch_on_driver
+final_time:  0.011155843734741211
+launch_on_driver
+final_time:  0.010660409927368164
+launch_on_driver
+final_time:  0.01945781707763672
+launch_on_driver
+final_time:  0.010891199111938477
+launch_on_driver
+final_time:  0.011219263076782227
+launch_on_driver
+final_time:  0.010640859603881836
+launch_on_driver
+final_time:  0.010870695114135742
+launch_on_driver
+final_time:  0.011324167251586914
+launch_on_driver
+final_time:  0.009952306747436523
+launch_on_driver
+final_time:  0.017609834671020508
+launch_on_driver
+final_time:  0.01229405403137207
+launch_on_driver
+final_time:  0.015106201171875
+launch_on_driver
+final_time:  0.022341489791870117
+launch_on_driver
+final_time:  0.026164531707763672
+launch_on_driver
+final_time:  0.015317678451538086
+launch_on_driver
+final_time:  0.013555288314819336
+launch_on_driver
+final_time:  0.016753435134887695
+launch_on_driver
+final_time:  0.015483379364013672
+launch_on_driver
+final_time:  0.015329360961914062
+launch_on_driver
+final_time:  0.018460512161254883
+launch_on_driver
+final_time:  0.01591038703918457
+launch_on_driver
+final_time:  0.018593549728393555
+launch_on_driver
+final_time:  0.014866352081298828
+launch_on_driver
+final_time:  0.017228126525878906
+launch_on_driver
+final_time:  0.017289161682128906
+launch_on_driver
+final_time:  0.01253366470336914
+launch_on_driver
+final_time:  0.012135744094848633
+launch_on_driver
+final_time:  0.010589599609375
+launch_on_driver
+final_time:  0.01166391372680664
+launch_on_driver
+final_time:  0.013272285461425781
+launch_on_driver
+final_time:  0.011198282241821289
+launch_on_driver
+final_time:  0.011747360229492188
+launch_on_driver
+final_time:  0.010922670364379883
+launch_on_driver
+final_time:  0.011429309844970703
+launch_on_driver
+final_time:  0.010836362838745117
+launch_on_driver
+final_time:  0.010338783264160156
+launch_on_driver
+final_time:  0.01082158088684082
+launch_on_driver
+final_time:  0.01022648811340332
+launch_on_driver
+final_time:  0.010688304901123047
+launch_on_driver
+final_time:  0.011166095733642578
+launch_on_driver
+final_time:  0.010951042175292969
+launch_on_driver
+final_time:  0.14168620109558105
+launch_on_driver
+final_time:  0.012171268463134766
+launch_on_driver
+final_time:  0.0118408203125
+launch_on_driver
+final_time:  0.010943412780761719
+launch_on_driver
+final_time:  0.011476993560791016
+launch_on_driver
+final_time:  0.010448217391967773
+launch_on_driver
+final_time:  0.010596752166748047
+launch_on_driver
+final_time:  0.011149883270263672
+launch_on_driver
+final_time:  0.00995779037475586
+launch_on_driver
+final_time:  0.011210441589355469
+launch_on_driver
+final_time:  0.010617971420288086
+launch_on_driver
+final_time:  0.010564565658569336
+launch_on_driver
+final_time:  0.010866403579711914
+launch_on_driver
+final_time:  0.010661840438842773
+launch_on_driver
+final_time:  0.019623994827270508
+launch_on_driver
+final_time:  0.011303424835205078
+launch_on_driver
+final_time:  0.011219263076782227
+launch_on_driver
+final_time:  0.010303497314453125
+launch_on_driver
+final_time:  0.010854959487915039
+launch_on_driver
+final_time:  0.011094093322753906
+launch_on_driver
+final_time:  0.010620355606079102
+launch_on_driver
+final_time:  0.011160612106323242
+launch_on_driver
+final_time:  0.010684490203857422
+launch_on_driver
+final_time:  0.010635137557983398
+launch_on_driver
+final_time:  0.010785102844238281
+launch_on_driver
+final_time:  0.010493040084838867
+launch_on_driver
+final_time:  0.0113067626953125
+launch_on_driver
+final_time:  0.010151863098144531
+launch_on_driver
+final_time:  0.011198997497558594
+launch_on_driver
+final_time:  0.010529518127441406
+launch_on_driver
+final_time:  0.010397672653198242
+launch_on_driver
+final_time:  0.010938644409179688
+launch_on_driver
+final_time:  0.018299579620361328
+launch_on_driver
+final_time:  0.01637887954711914
+launch_on_driver
+final_time:  0.015011310577392578
+launch_on_driver
+final_time:  0.017133235931396484
+launch_on_driver
+final_time:  0.022809743881225586
+launch_on_driver
+final_time:  0.01715874671936035
+launch_on_driver
+final_time:  0.013021707534790039
+launch_on_driver
+final_time:  0.011562108993530273
+launch_on_driver
+final_time:  0.011693954467773438
+launch_on_driver
+final_time:  0.01074671745300293
+launch_on_driver
+final_time:  0.010503053665161133
+launch_on_driver
+final_time:  0.011953353881835938
+launch_on_driver
+final_time:  0.010504484176635742
+launch_on_driver
+final_time:  0.010949134826660156
+launch_on_driver
+final_time:  0.010813236236572266
+launch_on_driver
+final_time:  0.010732889175415039
+launch_on_driver
+final_time:  0.4020059108734131
+launch_on_driver
+final_time:  0.01607537269592285
+launch_on_driver
+final_time:  0.013573169708251953
+launch_on_driver
+final_time:  0.012900352478027344
+launch_on_driver
+final_time:  0.01122283935546875
+launch_on_driver
+final_time:  0.010801553726196289
+launch_on_driver
+final_time:  0.011229515075683594
+launch_on_driver
+final_time:  0.011832475662231445
+launch_on_driver
+final_time:  0.011368989944458008
+launch_on_driver
+final_time:  0.011879205703735352
+launch_on_driver
+final_time:  0.01090860366821289
+launch_on_driver
+final_time:  0.01038217544555664
+launch_on_driver
+final_time:  0.010672807693481445
+launch_on_driver
+final_time:  0.010341882705688477
+launch_on_driver
+final_time:  0.010822772979736328
+launch_on_driver
+final_time:  0.013001680374145508
+launch_on_driver
+final_time:  0.010703325271606445
+launch_on_driver
+final_time:  0.010918617248535156
+launch_on_driver
+final_time:  0.010547399520874023
+launch_on_driver
+final_time:  0.011991739273071289
+launch_on_driver
+final_time:  0.011337518692016602
+launch_on_driver
+final_time:  0.012056589126586914
+launch_on_driver
+final_time:  0.011330366134643555
+launch_on_driver
+final_time:  0.011252880096435547
+launch_on_driver
+final_time:  0.011571168899536133
+launch_on_driver
+final_time:  0.014066457748413086
+launch_on_driver
+final_time:  0.01225423812866211
+launch_on_driver
+final_time:  0.011146306991577148
+launch_on_driver
+final_time:  0.011298179626464844
+launch_on_driver
+final_time:  0.011492729187011719
+launch_on_driver
+final_time:  0.01096963882446289
+launch_on_driver
+final_time:  0.011655330657958984
+launch_on_driver
+final_time:  0.011462926864624023
+launch_on_driver
+final_time:  0.011854887008666992
+launch_on_driver
+final_time:  0.011497020721435547
+launch_on_driver
+final_time:  0.009900331497192383
+launch_on_driver
+final_time:  0.012879133224487305
+launch_on_driver
+final_time:  0.010218381881713867
+launch_on_driver
+final_time:  0.010955572128295898
+launch_on_driver
+final_time:  0.009853601455688477
+launch_on_driver
+final_time:  0.010451793670654297
+launch_on_driver
+final_time:  0.010568618774414062
+launch_on_driver
+final_time:  0.010154008865356445
+launch_on_driver
+final_time:  0.010655879974365234
+launch_on_driver
+final_time:  0.010482311248779297
+launch_on_driver
+final_time:  0.011229991912841797
+launch_on_driver
+final_time:  0.010716915130615234
+launch_on_driver
+final_time:  0.014190912246704102
+launch_on_driver
+final_time:  0.3820066452026367
+launch_on_driver
+final_time:  0.012183189392089844
+launch_on_driver
+final_time:  0.013042926788330078
+launch_on_driver
+final_time:  0.010720014572143555
+launch_on_driver
+final_time:  0.01346731185913086
+launch_on_driver
+final_time:  0.01239466667175293
+launch_on_driver
+final_time:  0.010859489440917969
+launch_on_driver
+final_time:  0.011806011199951172
+launch_on_driver
+final_time:  0.011380672454833984
+launch_on_driver
+final_time:  0.011278390884399414
+launch_on_driver
+final_time:  0.010324716567993164
+launch_on_driver
+final_time:  0.010723590850830078
+launch_on_driver
+final_time:  0.011315584182739258
+launch_on_driver
+final_time:  0.01056361198425293
+launch_on_driver
+final_time:  0.01262354850769043
+launch_on_driver
+final_time:  0.01321101188659668
+launch_on_driver
+final_time:  0.010131359100341797
+launch_on_driver
+final_time:  0.012056112289428711
+launch_on_driver
+final_time:  0.010559797286987305
+launch_on_driver
+final_time:  0.011250734329223633
+launch_on_driver
+final_time:  0.011512279510498047
+launch_on_driver
+final_time:  0.011217355728149414
+launch_on_driver
+final_time:  0.011539220809936523
+launch_on_driver
+final_time:  0.01025247573852539
+launch_on_driver
+final_time:  0.011105537414550781
+launch_on_driver
+final_time:  0.023847103118896484
+launch_on_driver
+final_time:  0.02034163475036621
+launch_on_driver
+final_time:  0.015604496002197266
+launch_on_driver
+final_time:  0.017749309539794922
+launch_on_driver
+final_time:  0.016294240951538086
+launch_on_driver
+final_time:  0.011455297470092773
+launch_on_driver
+final_time:  0.011803150177001953
+launch_on_driver
+final_time:  0.010510444641113281
+launch_on_driver
+final_time:  0.012317657470703125
+launch_on_driver
+final_time:  0.011717796325683594
+launch_on_driver
+final_time:  0.01010584831237793
+launch_on_driver
+final_time:  0.011571884155273438
+launch_on_driver
+final_time:  0.010817766189575195
+launch_on_driver
+final_time:  0.012079477310180664
+launch_on_driver
+final_time:  0.010691642761230469
+launch_on_driver
+final_time:  0.011304855346679688
+launch_on_driver
+final_time:  0.011722326278686523
+launch_on_driver
+final_time:  0.010433435440063477
+launch_on_driver
+final_time:  0.01193690299987793
+launch_on_driver
+final_time:  0.011626005172729492
+launch_on_driver
+final_time:  0.01169443130493164
+launch_on_driver
+final_time:  0.011142730712890625
+launch_on_driver
+final_time:  0.010177135467529297
+launch_on_driver
+final_time:  0.36133766174316406
+launch_on_driver
+final_time:  0.016695022583007812
+launch_on_driver
+final_time:  0.010703563690185547
+launch_on_driver
+final_time:  0.010361909866333008
+launch_on_driver
+final_time:  0.00957942008972168
+launch_on_driver
+final_time:  0.009903192520141602
+launch_on_driver
+final_time:  0.009601116180419922
+launch_on_driver
+final_time:  0.010478734970092773
+launch_on_driver
+final_time:  0.010662078857421875
+launch_on_driver
+final_time:  0.009768009185791016
+launch_on_driver
+final_time:  0.011677026748657227
+launch_on_driver
+final_time:  0.01143646240234375
+launch_on_driver
+final_time:  0.012079954147338867
+launch_on_driver
+final_time:  0.01053166389465332
+launch_on_driver
+final_time:  0.011370658874511719
+launch_on_driver
+final_time:  0.012005329132080078
+launch_on_driver
+final_time:  0.010431289672851562
+launch_on_driver
+final_time:  0.011559724807739258
+launch_on_driver
+final_time:  0.011211395263671875
+launch_on_driver
+final_time:  0.011754751205444336
+launch_on_driver
+final_time:  0.010542869567871094
+launch_on_driver
+final_time:  0.010755538940429688
+launch_on_driver
+final_time:  0.012115478515625
+launch_on_driver
+final_time:  0.010927677154541016
+launch_on_driver
+final_time:  0.012070655822753906
+launch_on_driver
+final_time:  0.010091543197631836
+launch_on_driver
+final_time:  0.01665639877319336
+launch_on_driver
+final_time:  0.011414527893066406
+launch_on_driver
+final_time:  0.011518716812133789
+launch_on_driver
+final_time:  0.012296438217163086
+launch_on_driver
+final_time:  0.011257648468017578
+launch_on_driver
+final_time:  0.011384248733520508
+launch_on_driver
+final_time:  0.01121973991394043
+launch_on_driver
+final_time:  0.01096653938293457
+launch_on_driver
+final_time:  0.012099981307983398
+launch_on_driver
+final_time:  0.010530471801757812
+launch_on_driver
+final_time:  0.01094365119934082
+launch_on_driver
+final_time:  0.010346174240112305
+launch_on_driver
+final_time:  0.010481595993041992
+launch_on_driver
+final_time:  0.011201858520507812
+launch_on_driver
+final_time:  0.010316133499145508
+launch_on_driver
+final_time:  0.011132001876831055
+launch_on_driver
+final_time:  0.009583711624145508
+launch_on_driver
+final_time:  0.010770082473754883
+launch_on_driver
+final_time:  0.009999275207519531
+launch_on_driver
+final_time:  0.010123729705810547
+launch_on_driver
+final_time:  0.011285543441772461
+launch_on_driver
+final_time:  0.009929656982421875
+launch_on_driver
+final_time:  0.15711545944213867
+launch_on_driver
+final_time:  0.014940023422241211
+launch_on_driver
+final_time:  0.011968851089477539
+launch_on_driver
+final_time:  0.010349512100219727
+launch_on_driver
+final_time:  0.010109663009643555
+launch_on_driver
+final_time:  0.010986804962158203
+launch_on_driver
+final_time:  0.01135706901550293
+launch_on_driver
+final_time:  0.010003328323364258
+launch_on_driver
+final_time:  0.010753870010375977
+launch_on_driver
+final_time:  0.009918212890625
+launch_on_driver
+final_time:  0.010648012161254883
+launch_on_driver
+final_time:  0.010167598724365234
+launch_on_driver
+final_time:  0.011105060577392578
+launch_on_driver
+final_time:  0.009904623031616211
+launch_on_driver
+final_time:  0.010555505752563477
+launch_on_driver
+final_time:  0.012124300003051758
+launch_on_driver
+final_time:  0.011333227157592773
+launch_on_driver
+final_time:  0.011743545532226562
+launch_on_driver
+final_time:  0.011115074157714844
+launch_on_driver
+final_time:  0.011363029479980469
+launch_on_driver
+final_time:  0.011738777160644531
+launch_on_driver
+final_time:  0.011363506317138672
+launch_on_driver
+final_time:  0.01020359992980957
+launch_on_driver
+final_time:  0.010244131088256836
+launch_on_driver
+final_time:  0.01808023452758789
+launch_on_driver
+final_time:  0.017580032348632812
+launch_on_driver
+final_time:  0.01979660987854004
+launch_on_driver
+final_time:  0.021771907806396484
+launch_on_driver
+final_time:  0.017749786376953125
+launch_on_driver
+final_time:  0.01894354820251465
+launch_on_driver
+final_time:  0.015546083450317383
+launch_on_driver
+final_time:  0.017190217971801758
+launch_on_driver
+final_time:  0.021445274353027344
+launch_on_driver
+final_time:  0.0186920166015625
+launch_on_driver
+final_time:  0.018065214157104492
+launch_on_driver
+final_time:  0.016531944274902344
+launch_on_driver
+final_time:  0.014984130859375
+launch_on_driver
+final_time:  0.01882004737854004
+launch_on_driver
+final_time:  0.01777052879333496
+launch_on_driver
+final_time:  0.012052774429321289
+launch_on_driver
+final_time:  0.01069188117980957
+launch_on_driver
+final_time:  0.010275602340698242
+launch_on_driver
+final_time:  0.010621309280395508
+launch_on_driver
+final_time:  0.010550975799560547
+launch_on_driver
+final_time:  0.01009225845336914
+launch_on_driver
+final_time:  0.015291929244995117
+launch_on_driver
+final_time:  0.014094352722167969
+launch_on_driver
+final_time:  0.012812376022338867
+launch_on_driver
+final_time:  0.012722015380859375
+launch_on_driver
+final_time:  0.1618502140045166
+launch_on_driver
+final_time:  0.012026786804199219
+launch_on_driver
+final_time:  0.01171255111694336
+launch_on_driver
+final_time:  0.010751485824584961
+launch_on_driver
+final_time:  0.011490821838378906
+launch_on_driver
+final_time:  0.010825634002685547
+launch_on_driver
+final_time:  0.010671854019165039
+launch_on_driver
+final_time:  0.011235713958740234
+launch_on_driver
+final_time:  0.010110855102539062
+launch_on_driver
+final_time:  0.01089620590209961
+launch_on_driver
+final_time:  0.011558294296264648
+launch_on_driver
+final_time:  0.010376453399658203
+launch_on_driver
+final_time:  0.01103663444519043
+launch_on_driver
+final_time:  0.010976552963256836
+launch_on_driver
+final_time:  0.011110782623291016
+launch_on_driver
+final_time:  0.010975122451782227
+launch_on_driver
+final_time:  0.010925531387329102
+launch_on_driver
+final_time:  0.011664867401123047
+launch_on_driver
+final_time:  0.011075019836425781
+launch_on_driver
+final_time:  0.011862039566040039
+launch_on_driver
+final_time:  0.011659383773803711
+launch_on_driver
+final_time:  0.011701107025146484
+launch_on_driver
+final_time:  0.01147913932800293
+launch_on_driver
+final_time:  0.011171340942382812
+launch_on_driver
+final_time:  0.011185169219970703
+launch_on_driver
+final_time:  0.010149955749511719
+launch_on_driver
+final_time:  0.011645793914794922
+launch_on_driver
+final_time:  0.010930061340332031
+launch_on_driver
+final_time:  0.011761665344238281
+launch_on_driver
+final_time:  0.011106014251708984
+launch_on_driver
+final_time:  0.011335611343383789
+launch_on_driver
+final_time:  0.011690378189086914
+launch_on_driver
+final_time:  0.01126408576965332
+launch_on_driver
+final_time:  0.011382579803466797
+launch_on_driver
+final_time:  0.010489702224731445
+launch_on_driver
+final_time:  0.011505126953125
+launch_on_driver
+final_time:  0.010534048080444336
+launch_on_driver
+final_time:  0.010926008224487305
+launch_on_driver
+final_time:  0.023344755172729492
+launch_on_driver
+final_time:  0.01664876937866211
+launch_on_driver
+final_time:  0.01829242706298828
+launch_on_driver
+final_time:  0.013552188873291016
+launch_on_driver
+final_time:  0.015638351440429688
+launch_on_driver
+final_time:  0.011754035949707031
+launch_on_driver
+final_time:  0.009905338287353516
+launch_on_driver
+final_time:  0.010723590850830078
+launch_on_driver
+final_time:  0.010135650634765625
+launch_on_driver
+final_time:  0.010060787200927734
+launch_on_driver
+final_time:  0.17640209197998047
+launch_on_driver
+final_time:  0.019985437393188477
+launch_on_driver
+final_time:  0.012852907180786133
+launch_on_driver
+final_time:  0.01166987419128418
+launch_on_driver
+final_time:  0.013599395751953125
+launch_on_driver
+final_time:  0.012302875518798828
+launch_on_driver
+final_time:  0.010595083236694336
+launch_on_driver
+final_time:  0.01242375373840332
+launch_on_driver
+final_time:  0.010759592056274414
+launch_on_driver
+final_time:  0.01986837387084961
+launch_on_driver
+final_time:  0.022597789764404297
+launch_on_driver
+final_time:  0.02036595344543457
+launch_on_driver
+final_time:  0.021917343139648438
+launch_on_driver
+final_time:  0.016546249389648438
+launch_on_driver
+final_time:  0.012462615966796875
+launch_on_driver
+final_time:  0.010942935943603516
+launch_on_driver
+final_time:  0.011588573455810547
+launch_on_driver
+final_time:  0.012187719345092773
+launch_on_driver
+final_time:  0.011018753051757812
+launch_on_driver
+final_time:  0.011943817138671875
+launch_on_driver
+final_time:  0.010530948638916016
+launch_on_driver
+final_time:  0.012031316757202148
+launch_on_driver
+final_time:  0.011060476303100586
+launch_on_driver
+final_time:  0.010691165924072266
+launch_on_driver
+final_time:  0.011852264404296875
+launch_on_driver
+final_time:  0.010617494583129883
+launch_on_driver
+final_time:  0.010771751403808594
+launch_on_driver
+final_time:  0.010732650756835938
+launch_on_driver
+final_time:  0.01110696792602539
+launch_on_driver
+final_time:  0.011513471603393555
+launch_on_driver
+final_time:  0.011114120483398438
+launch_on_driver
+final_time:  0.012135744094848633
+launch_on_driver
+final_time:  0.011427164077758789
+launch_on_driver
+final_time:  0.011675834655761719
+launch_on_driver
+final_time:  0.01165914535522461
+launch_on_driver
+final_time:  0.016806602478027344
+launch_on_driver
+final_time:  0.0171663761138916
+launch_on_driver
+final_time:  0.015420675277709961
+launch_on_driver
+final_time:  0.017909765243530273
+launch_on_driver
+final_time:  0.014292240142822266
+launch_on_driver
+final_time:  0.011250495910644531
+launch_on_driver
+final_time:  0.01927781105041504
+launch_on_driver
+final_time:  0.013426542282104492
+launch_on_driver
+final_time:  0.011981964111328125
+launch_on_driver
+final_time:  0.011427879333496094
+launch_on_driver
+final_time:  0.01148366928100586
+launch_on_driver
+final_time:  0.010757923126220703
+launch_on_driver
+final_time:  0.012824296951293945
+launch_on_driver
+final_time:  0.1686420440673828
+launch_on_driver
+final_time:  0.020840883255004883
+launch_on_driver
+final_time:  0.02176809310913086
+launch_on_driver
+final_time:  0.018129348754882812
+launch_on_driver
+final_time:  0.017573833465576172
+launch_on_driver
+final_time:  0.01680731773376465
+launch_on_driver
+final_time:  0.01926112174987793
+launch_on_driver
+final_time:  0.021971702575683594
+launch_on_driver
+final_time:  0.018136262893676758
+launch_on_driver
+final_time:  0.015151739120483398
+launch_on_driver
+final_time:  0.019098281860351562
+launch_on_driver
+final_time:  0.016339778900146484
+launch_on_driver
+final_time:  0.021650075912475586
+launch_on_driver
+final_time:  0.018861055374145508
+launch_on_driver
+final_time:  0.016623973846435547
+launch_on_driver
+final_time:  0.016946792602539062
+launch_on_driver
+final_time:  0.015440225601196289
+launch_on_driver
+final_time:  0.012744665145874023
+launch_on_driver
+final_time:  0.016974449157714844
+launch_on_driver
+final_time:  0.013306856155395508
+launch_on_driver
+final_time:  0.012050867080688477
+launch_on_driver
+final_time:  0.0186917781829834
+total execution time: 21.185078859329224 [s] without warmup
+Serial execution time. Mean: 0.04366 s, Std: 0.90063 s
+Serial execution time. Mean: 0.01818 s, Std: 0.03236 s

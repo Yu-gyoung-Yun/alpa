@@ -35,15 +35,15 @@ while [[ "$#" -gt 0 ]]; do
     esac
 done
 
-
+export XLA_PYTHON_CLIENT_PREALLOCATE=false
 ray stop --force
 mkdir -p ./output/${bs}
 NCCL_P2P_LEVEL=PIX NCCL_SOCKET_IFNAME=SYS NCCL_SHM_DISABLE=1 NCCL_INCLUDE_DIR="/usr/include/" NCCL_LIB_DIR="/usr/lib/" USE_SYSTEM_NCCL=1 
 python3 run_clm_flax_dp.py \
     --output_dir="./output/${bs}" \
-    --model_type="gpt2-xl" \
-    --config_name="gpt2-xl" \
-    --tokenizer_name="gpt2-xl" \
+    --model_type="gpt2" \
+    --config_name="gpt2" \
+    --tokenizer_name="gpt2" \
     --dataset_name="oscar" \
     --dataset_config_name="unshuffled_deduplicated_no" \
     --do_train \
