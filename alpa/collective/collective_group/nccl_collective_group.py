@@ -209,6 +209,9 @@ class NCCLGroup(BaseGroup):
         Returns:
             communicator: the NCCL communicator corresponded to the devices.
         """
+        with open("/SSD/YG/alpa/ray/debug.txt", "a") as f:
+            print("[STREAM]", flush=True, file=f)
+
         if not comm_key:
             raise RuntimeError("Got empty communicator key.")
 
@@ -536,6 +539,8 @@ class NCCLGroup(BaseGroup):
         self._dev_comm_map[comm_key] = [comm]
         self._dev_streams_map[comm_key] = [stream]
         self._dev_event_map[comm_key] = [event]
+        with open("/SSD/YG/alpa/ray/debug.txt", "a") as f:
+            print("_get_nccl_p2p_communicator", flush=True, file=f)
         return [comm]
 
     def _generate_group_key(self, comm_key):
@@ -569,7 +574,8 @@ class NCCLGroup(BaseGroup):
         group_uid = nccl_util.get_nccl_unique_id()
         return group_uid
 
-    def _generate_nccl_uid(self, key):
+    @staticmethod
+    def _generate_nccl_uid(key):
         """Generate an NCCL unique ID for initializing communicators.
 
         The method will also create a KV store using Ray named actor and store
@@ -586,9 +592,9 @@ class NCCLGroup(BaseGroup):
         store_name = get_store_name(key)
         # Avoid a potential circular dependency in ray/actor.py
         from alpa.collective.util import NCCLUniqueIDStore  # pylint: disable=import-outside-toplevel
-        self._store = NCCLUniqueIDStore.options(
-            name=store_name).remote(store_name)
-        ray.get([self._store.set_id.remote(group_uid)])
+        store = NCCLUniqueIDStore.options(
+            name=store_name, lifetime="detached").remote(store_name)
+        ray.get([store.set_id.remote(group_uid)])
         return group_uid
 
     def _collective(self,

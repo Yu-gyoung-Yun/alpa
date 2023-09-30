@@ -125,6 +125,22 @@ class JaxPipelineComputation(PipelineComputation):
                    consts_dir=dict(
                        zip(closed_jaxpr.jaxpr.constvars, closed_jaxpr.consts)))
 
+    # YG
+    def input_var_mem_size(self):
+        print(f"jaxpr.eqns, len: {len(self.eqns)}")
+        for eqn in self.eqns:
+            print(f"eqn: {eqn}")
+        inputs = self.invars
+        print(f"input_var_mem_size")
+        print(inputs)
+        print([x.aval.shape for x in inputs])
+        import math
+        total_inp_mem = 0
+        for x in inputs:
+            total_inp_mem += math.prod(x.aval.shape)
+        print(f"param_size: {total_inp_mem / 2 ** 30} [GiB] ")
+        pass
+    
     def outvars_def_order(self):
         """
         Get the order of outvars by when they are defined in the jaxpr. This may
@@ -901,6 +917,7 @@ def _wrap_by_marker(jaxpr: Jaxpr, name, gensym_fn):
     params = dict(name=name,
                   call_jaxpr=Jaxpr([], new_invars + jaxpr.constvars,
                                    new_outvars, jaxpr.eqns))
+    # named_call_p = core.CallPrimitive('named_call')
     eqns.append(
         new_jaxpr_eqn(sym_invars + jaxpr.constvars, sym_outvars, named_call_p,
                       params))

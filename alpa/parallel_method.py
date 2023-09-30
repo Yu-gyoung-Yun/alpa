@@ -248,6 +248,7 @@ def get_3d_parallel_method(num_micro_batches: int,
                            data_parallel: int,
                            operator_parallel: int,
                            pipeline_parallel: int,
+                           layer_num: int,
                            allow_degenerate_into_shard_parallel: bool = True,
                            manual_layer_num: int = None,
                            manual_sharding_option: ManualShardingOption = None):
@@ -295,19 +296,34 @@ def get_3d_parallel_method(num_micro_batches: int,
         stage_option = UniformStageOption(pp, physical_mesh_shape,
                                           logical_mesh_shape, {})
     else:
-        layer_option = AutoLayerOption(layer_num=pp, eps=0.1)
+        layer_option = AutoLayerOption(layer_num=14, eps=0.1)
         stage_option = ManualStageOption(
-            forward_stage_layer_ids=[[i] for i in range(pp)],
-            submesh_physical_shapes=[physical_mesh_shape] * pp,
-            submesh_logical_shapes=[logical_mesh_shape] * pp,
-            submesh_autosharding_option_dicts=[{}] * pp)
+            forward_stage_layer_ids=[(0,1,2), (3,4,5,6,7), (8,9,10), (11, 12,13)],#[[i] for i in range(pp)],
+            submesh_physical_shapes=[(1,2), (1,2), (1,2), (1,2)], #[physical_mesh_shape] * pp,
+            submesh_logical_shapes=[(2,1), (2,1), (2,1), (2,1)], #[logical_mesh_shape] * pp,
+            submesh_autosharding_option_dicts=[{},{},{},{}])#[{}] * pp)
+        
+        '''ManualStageOption(
+            forward_stage_layer_ids=[(0,1,2, 3,4,5,6,7, 8,9,10, 11, 12,13)],#[[i] for i in range(pp)],
+            submesh_physical_shapes=[(1,8)], #[physical_mesh_shape] * pp,
+            submesh_logical_shapes=[(8,1)], #[logical_mesh_shape] * pp,
+            submesh_autosharding_option_dicts=[{"force_batch_dim_to_mesh_dim": 0}]#[{}] * pp)
+        )'''
+        '''
+        '''
+        #"auto"
+        #ManualStageOption(
+            #forward_stage_layer_ids=[[i] for i in range(pp)],
+            #submesh_physical_shapes=[physical_mesh_shape] * pp,
+            #submesh_logical_shapes=[logical_mesh_shape] * pp,
+            #submesh_autosharding_option_dicts=[{}] * pp)
     return PipeshardParallel(
         devices=virtual_mesh,
         num_micro_batches=num_micro_batches,
         default_auto_sharding_option=AutoShardingOption(
             enable_auto_sharding=manual_sharding_option is None,
-            prefer_reduce_scatter=True,
-            force_batch_dim_to_mesh_dim=0,
+            #prefer_reduce_scatter=True,
+            #force_batch_dim_to_mesh_dim=0,
         ),
         layer_option=layer_option,
         stage_option=stage_option,

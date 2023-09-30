@@ -777,6 +777,9 @@ def cluster_layers_and_slice_mesh(
             wrap_with_marker=True)
         merged_stage = JaxPipelineComputation.from_closed_jaxpr(
             stage_name, merged_stage_jaxpr)
+        # YG
+        merged_stage.input_var_mem_size()
+        
         merged_stages.append(merged_stage)
     stages = merged_stages
 
@@ -795,6 +798,7 @@ def cluster_layers_and_slice_mesh(
         logical_mesh_shapes, autosharding_option_dicts)
 
     timers("stage-construction").stop()
+    print(f"len stages: {len(stages)}")
     return stages, stage_to_mesh, sliced_meshes, manual_stage_option
 
 

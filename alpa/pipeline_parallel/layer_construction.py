@@ -509,6 +509,7 @@ def layer_level_jaxpr_transformation(fn: Callable,
             nonlocal layer_num
             if layer_num == "auto":
                 layer_num = search_layer_num(jaxpr, eps, layer_eps)
+                print("search layer_num: ", layer_num)
             costs = get_layer_construction_costs(jaxpr,
                                                  cost_criteria=cost_criteria)
             sliced_eqns, _ = cluster_jaxpr_by_cost(jaxpr,
@@ -521,6 +522,7 @@ def layer_level_jaxpr_transformation(fn: Callable,
 
         if global_config.print_auto_layer_stats:
             log_layer_slicing_stats(jaxpr, sliced_eqns)
+        log_layer_slicing_stats(jaxpr, sliced_eqns)
 
         if remat:
             sliced_eqns = remat_sliced_eqns(jaxpr, sliced_eqns)

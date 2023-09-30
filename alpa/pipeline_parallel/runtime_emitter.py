@@ -186,7 +186,12 @@ class PipelineInstEmitterHelper:
 
     def get_var_mesh_uuid(self, var, batch_idx, mesh_idx) -> int:
         key = self._get_var_key(var, batch_idx)
-        return self.env[key][mesh_idx]
+        try:
+            return self.env[key][mesh_idx]
+        except KeyError as e:
+            print(key, var, batch_idx, mesh_idx)
+            print(self.env[key])
+            raise e
 
     def get_var_meshes(self, var, batch_idx) -> Dict[int, int]:
         key = self._get_var_key(var, batch_idx)
@@ -706,6 +711,7 @@ class PipelineInstEmitter:
         before: a, b, c, d
         after (b, d are batch args and #mb=2): a, b0, b1, c, d0, d1
         """
+        print("_compile_split_input_to_microbatches")
         donated_invar_set = OrderedSet()
         for stage in self.stages:
             for invar, donate in zip(stage.invars, stage.donated_invars):
@@ -925,6 +931,7 @@ class PipelineInstEmitter:
         return output_uuids
 
     def _get_outs_handler(self, mesh_output_indices, output_spec_list):
+        print(f"_get_outs_handler(self, mesh_output_indices, output_spec_list):")
         """
         Setup outs handlers that assemble RemoteBufs into DistributedArrays.
         """
@@ -1131,6 +1138,8 @@ class OverlapFriendlyPipelineInstEmitter(PipelineInstEmitter):
             for var_idx, var in enumerate(stage.invars):
                 if (var in global_invar_set or var in self.grad_dummy_invars or
                         mesh_idx in var_at_mesh[var]):
+                    if str(var) == "cus":
+                        print("skip at mesh", stage_idx, mesh_idx)
                     continue
                 else:
                     # Currently we use the first mesh, since there is almost no
@@ -1148,6 +1157,7 @@ class OverlapFriendlyPipelineInstEmitter(PipelineInstEmitter):
             for var in stage.outvars:
                 var_defined.setdefault(var, OrderedSet()).add(stage_idx)
                 var_at_mesh.setdefault(var, OrderedSet()).add(mesh_idx)
+        print(self.stage_send_vars[0])
         # Reorder send and merge
         for stage_idx, stage in enumerate(self.stages):
             send_vars = self.stage_send_vars[stage_idx]
@@ -1155,8 +1165,8 @@ class OverlapFriendlyPipelineInstEmitter(PipelineInstEmitter):
                 k: i for i, k in enumerate(outvar_def_order[stage_idx])
             }
             send_vars = sorted(send_vars,
-                               key=lambda sv, order=var_def_order:
-                               (order[sv[1]], sv[0]))
+                               key=lambda i, v, _, order=var_def_order:
+                               (order[v], i))
             final_send_seq = []
             for recv_stage_idx, v, spec in send_vars:
                 if (len(final_send_seq) != 0 and

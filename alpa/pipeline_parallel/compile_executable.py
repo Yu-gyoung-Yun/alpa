@@ -15,7 +15,9 @@ from alpa.global_env import global_config
 from alpa.pipeline_parallel.pipeshard_executable import PipeshardDriverExecutable
 from alpa.pipeline_parallel.runtime_emitter import (
     OverlapFriendlyPipelineInstEmitter, PipelineInstEmitter)
-from alpa.pipeline_parallel.schedules import create_pipeline_schedule
+from alpa.pipeline_parallel.schedules import (GpipeSchedule,
+                                              OverlapFriendlyPipeDreamSchedule,
+                                              PipeDreamFlush, InferenceSchedule)
 from alpa.pipeline_parallel.computation import (
     create_donation_mapping, generate_computations_from_modules,
     generate_sharded_xla_computations,
@@ -36,7 +38,6 @@ from alpa.shard_parallel.auto_sharding import (AutoShardingOption,
 from alpa.shard_parallel.manual_sharding import (ManualShardingOption,
                                                  ParsedManualShardingOption,
                                                  get_flatten_axis_resources,
-                                                 get_intermediate_parsed_spec,
                                                  parsed_spec_to_opsharding)
 from alpa.util import (get_var_mapping, trace_jaxpr_with_micro_batch,
                        OrderedSet, GradFuncTransformContext)
@@ -113,7 +114,7 @@ def compile_pipeshard_executable(
         batch_invars, virtual_mesh, num_microbatch, pipeline_schedule,
         default_as_option, stage_option, name_base, global_input_shardings,
         None, stage_input_shardings, parsed_ms_option)
-
+    #print(f"pipeshard_config: {pipeshard_config}")
     executable = PipeshardDriverExecutable(
         mesh_group=virtual_mesh.launched_physical_mesh_group,
         pipeshard_config=pipeshard_config,
@@ -122,6 +123,7 @@ def compile_pipeshard_executable(
         in_tree=in_tree,
         out_tree=out_tree,
         static_argnums=static_argnums)
+    #print(f"executable: {executable}") #<alpa.pipeline_parallel.pipeshard_executable.PipeshardDriverExecutable object at 0x7f9dde17a6d0>
     debug_compilation_time("driver executable")
     return executable
 
@@ -147,8 +149,9 @@ def compile_pipeshard_executable_internal(
         stage_input_shardings: Forcibly set sharding specs of input vars of
           each stage.
     """
+    print("compile_pipehshard_executable_internal")
     global_invars = closed_jaxpr.jaxpr.invars
-    gensym_func = gensym([closed_jaxpr.jaxpr])
+    gensym_func = gensym([closed_jaxpr.jaxpr]) #Produce distinct variables, printed with the optional suffix.
     inference_mode = (pipeline_schedule == "inference")
 
     (closed_jaxpr, global_outvars, jax_pipeline_layers, apply_grad_jaxpr,
@@ -197,14 +200,31 @@ def compile_pipeshard_executable_internal(
     debug_compilation_time("apply grad")
 
     # Generate pipeline schedule and placement
-    dependency, fwd_intermediates = gen_dependency_with_stages(
-        jax_pipeline_stages, num_meshes, sliced_apply_grad_stages)
-    schedule = create_pipeline_schedule(
-        pipeline_schedule,
-        dependency=dependency,
-        meshes=sliced_virtual_meshes,
-        apply_grad_placement=apply_grad_placement,
-        num_batch=num_microbatch)
+    dependency = gen_dependency_with_stages(jax_pipeline_stages,
+                                            sliced_apply_grad_stages)
+    if pipeline_schedule == "gpipe":
+        schedule = GpipeSchedule(dependency=dependency,
+                                 meshes=sliced_virtual_meshes,
+                                 apply_grad_placement=apply_grad_placement,
+                                 num_batch=num_microbatch)
+    elif pipeline_schedule == "1f1b":
+        schedule = PipeDreamFlush(dependency=dependency,
+                                  meshes=sliced_virtual_meshes,
+                                  apply_grad_placement=apply_grad_placement,
+                                  num_batch=num_microbatch)
+    elif pipeline_schedule == "inference":
+        schedule = InferenceSchedule(dependency=dependency,
+                                     meshes=sliced_virtual_meshes,
+                                     apply_grad_placement=apply_grad_placement,
+                                     num_batch=num_microbatch)
+    elif pipeline_schedule == "1f1b_overlap_friendly":
+        schedule = OverlapFriendlyPipeDreamSchedule(
+            dependency=dependency,
+            meshes=sliced_virtual_meshes,
+            apply_grad_placement=apply_grad_placement,
+            num_batch=num_microbatch)
+    else:
+        raise ValueError(f"Invalid schedule: {pipeline_schedule}")
 
     # Forcibly set the sharding specs of global invars and outvars.
     # FIXME(yonghao): the invar can appear on multiple meshes and thus different
@@ -227,7 +247,7 @@ def compile_pipeshard_executable_internal(
          output_sharding_dicts) = get_manual_input_output_sharding_specs(
              jax_all_stages, manual_stage_option.submesh_logical_shapes,
              parsed_manual_sharding_option, global_invars, global_outvars,
-             schedule.stage_mesh_mapping, fwd_intermediates)
+             schedule.stage_mesh_mapping)
     else:
         input_sharding_dicts = [input_sharding_dict] * num_meshes
         output_sharding_dicts = [output_sharding_dict] * num_meshes
@@ -289,18 +309,18 @@ def split_and_process_layers(closed_jaxpr, full_batch_closed_jaxpr,
        start of accumulate gradient.
 
     """
-
+    print("split_and_process_layers")
     # Split the jaxpr into compute_grad and apply_grad
     (closed_jaxpr, compute_grad_jaxpr, apply_grad_jaxpr,
      microbatch_bound) = split_compute_grad_and_apply_grad(
          closed_jaxpr, gensym_func, num_microbatch, inference_mode)
     global_outvars = closed_jaxpr.jaxpr.outvars
-
+    #print(f"== compute_grad_jaxpr: {compute_grad_jaxpr}, apply_grad_jaxpr: {apply_grad_jaxpr}")
     # Transform compute_grad to accumulate_grad
     # FIXME(yonghao): use apply grad jaxpr returned by this function
     (reduction_vector, post_microbatch_bound,
      _) = _get_full_batch_apply_grad(full_batch_closed_jaxpr, microbatch_bound,
-                                     num_microbatch, inference_mode)
+                                     num_microbatch, inference_mode) # split_compute_grad_and_apply_grad one more time!
     (acc_grad_jaxpr, microbatch_bound,
      accumulator_mapping) = compute_grad_to_accumulate_grad(
          compute_grad_jaxpr, microbatch_bound, reduction_vector, gensym_func,
@@ -335,7 +355,7 @@ def split_and_process_layers(closed_jaxpr, full_batch_closed_jaxpr,
 
 def get_manual_input_output_sharding_specs(stages, mesh_shapes, ms_option,
                                            global_invars, global_outvars,
-                                           stage_to_mesh, fwd_intermediates):
+                                           stage_to_mesh):
     """
     Split user assigned input and output PartitionSpec into sharding specs for
     each pipeline stage.
@@ -345,7 +365,6 @@ def get_manual_input_output_sharding_specs(stages, mesh_shapes, ms_option,
     var_to_pspec = {}
     handle_invar = False
     handle_outvar = False
-    # Add global input and output's parsed partition spec.
     if ms_option.in_parsed_pspec is not None:
         var_to_pspec.update(dict(zip(global_invars, ms_option.in_parsed_pspec)))
         handle_invar = True
@@ -353,25 +372,12 @@ def get_manual_input_output_sharding_specs(stages, mesh_shapes, ms_option,
         var_to_pspec.update(
             dict(zip(global_outvars, ms_option.out_parsed_pspec)))
         handle_outvar = True
-    # Add pipeline intermediate's parsed partition spec.
-    intermediate_to_pspec = {}
-    if ms_option.pipeline_intermediate_axes is not None:
-        for v in fwd_intermediates:
-            # TODO: This is a simple heuristic: we simply replicate 1d tensors.
-            if len(v.aval.shape) <= 1:
-                continue
-            intermediate_to_pspec[v] = get_intermediate_parsed_spec(
-                ms_option.pipeline_intermediate_axes, len(v.aval.shape))
-
     submesh_axis_names = ms_option.submesh_axis_names
     if submesh_axis_names is None:
         submesh_axis_names = [ms_option.mesh_axis_names] * len(mesh_shapes)
 
     def get_vars_to_sharding_specs(variables, mesh_shape, mesh_axis_names):
-        parsed_specs = [
-            (var_to_pspec[v] if v in var_to_pspec else intermediate_to_pspec[v])
-            for v in variables
-        ]
+        parsed_specs = [var_to_pspec[v] for v in variables]
         avals = [v.aval for v in variables]
         var_op_shardings = parsed_spec_to_opsharding(parsed_specs, avals,
                                                      mesh_shape,
@@ -394,13 +400,8 @@ def get_manual_input_output_sharding_specs(stages, mesh_shapes, ms_option,
         # invars
         if handle_invar:
             invar_in_global = [var for var in stage.invars if var in invar_set]
-            # add intermediate vars
-            intermediate_var = [
-                var for var in stage.invars if var in intermediate_to_pspec
-            ]
-            invars = invar_in_global + intermediate_var
             stage_invar_shardings = get_vars_to_sharding_specs(
-                invars, mesh_shape, mesh_axis_names)
+                invar_in_global, mesh_shape, mesh_axis_names)
         else:
             stage_invar_shardings = {}
         # outvars
@@ -459,17 +460,13 @@ def shard_each_stage(jax_all_stages, virtual_meshes, schedule, num_meshes,
         compile_intermediate = [None] * num_meshes
     total_flops = 0
     for mesh_idx in range(num_meshes):
+        input_sharding_dict = input_sharding_dicts[mesh_idx]
+        output_sharding_dict = output_sharding_dicts[mesh_idx]
         virtual_mesh = virtual_meshes[mesh_idx]
         logical_mesh = virtual_mesh.get_logical_mesh(
             logical_mesh_shapes[mesh_idx])
         autosharding_option = dataclasses.replace(
             default_as_option, **autosharding_option_dicts[mesh_idx])
-
-        # Predefined shardings. stage_input_sharding should have shardings for
-        # all parameters, while the sharding dict can have only a portion of
-        # all parameters.
-        input_sharding_dict = input_sharding_dicts[mesh_idx]
-        output_sharding_dict = output_sharding_dicts[mesh_idx]
         stage_input_sharding = stage_input_shardings[mesh_idx]
 
         # Setup dummy stages

@@ -1,68 +1,56 @@
-uuid: 72
-self.executables[uuid]: <bound method PipeshardMeshWorkerExecutable.execute_on_worker of <alpa.pipeline_parallel.pipeshard_executable.PipeshardMeshWorkerExecutable object at 0x7f06d072d580>>
-def PipeshardExecutable.execute_on_worker
-!PipeshardExecutable.execute_on_worker
-memory_allocated: 4.852 GB  max_memory_allocated: 4.852 GB next instruction: Opcode: RUN, Task uuid: 18, Info: allocate zero for grad acc
-self.instructions: Opcode: RUN, Task uuid: 18, Info: allocate zero for grad acc
-self.worker: <bound method MeshHostWorker.run_executable of <alpa.device_mesh.MeshHostWorker object at 0x7f06d0720d60>>
-PASS
-uuid: 18
-self.executables[uuid]: <bound method AllocZeroBufferWorkerExecutable.execute_on_worker of <alpa.mesh_executable.AllocZeroBufferWorkerExecutable object at 0x7f02e851ed60>>
-PASS
-memory_allocated: 5.520 GB  max_memory_allocated: 5.520 GB next instruction: Opcode: RUN, Task uuid: 6, Info: stage 0
-self.instructions: Opcode: RUN, Task uuid: 6, Info: stage 0
-self.worker: <bound method MeshHostWorker.run_executable of <alpa.device_mesh.MeshHostWorker object at 0x7f06d0720d60>>
-PASS
-uuid: 6
-self.executables[uuid]: <bound method PartialGradAccMeshWorkerExecutable.execute_on_worker of <alpa.mesh_executable.PartialGradAccMeshWorkerExecutable object at 0x7f06d065e550>>
-NormalMeshWorkerExecutable.execute_on_worker
-[SUCCESS]
-PASS
-memory_allocated: 17.933 GB  max_memory_allocated: 18.700 GB next instruction: Opcode: FREE, Task uuid: None, Info: 
-self.instructions: Opcode: FREE, Task uuid: None, Info: 
-self.worker: <bound method MeshHostWorker.run_executable of <alpa.device_mesh.MeshHostWorker object at 0x7f06d0720d60>>
-memory_allocated: 17.933 GB  max_memory_allocated: 18.700 GB next instruction: Opcode: SEND, Task uuid: 3, Info: 
-self.instructions: Opcode: SEND, Task uuid: 3, Info: 
-self.worker: <bound method MeshHostWorker.run_executable of <alpa.device_mesh.MeshHostWorker object at 0x7f06d0720d60>>
-uuid: 72
-self.executables[uuid]: <bound method PipeshardMeshWorkerExecutable.execute_on_worker of <alpa.pipeline_parallel.pipeshard_executable.PipeshardMeshWorkerExecutable object at 0x7f00b4650b80>>
-def PipeshardExecutable.execute_on_worker
-!PipeshardExecutable.execute_on_worker
-memory_allocated: 4.775 GB  max_memory_allocated: 4.775 GB next instruction: Opcode: RUN, Task uuid: 20, Info: allocate zero for grad acc
-self.instructions: Opcode: RUN, Task uuid: 20, Info: allocate zero for grad acc
-self.worker: <bound method MeshHostWorker.run_executable of <alpa.device_mesh.MeshHostWorker object at 0x7f00b464bd90>>
-PASS
-uuid: 20
-self.executables[uuid]: <bound method AllocZeroBufferWorkerExecutable.execute_on_worker of <alpa.mesh_executable.AllocZeroBufferWorkerExecutable object at 0x7f00b463deb0>>
-PASS
-memory_allocated: 5.443 GB  max_memory_allocated: 5.443 GB next instruction: Opcode: RUN, Task uuid: 24, Info: allocate zero for recv
-self.instructions: Opcode: RUN, Task uuid: 24, Info: allocate zero for recv
-self.worker: <bound method MeshHostWorker.run_executable of <alpa.device_mesh.MeshHostWorker object at 0x7f00b464bd90>>
-PASS
-uuid: 24
-self.executables[uuid]: <bound method AllocZeroBufferWorkerExecutable.execute_on_worker of <alpa.mesh_executable.AllocZeroBufferWorkerExecutable object at 0x7f00b463dcd0>>
-PASS
-memory_allocated: 5.467 GB  max_memory_allocated: 5.467 GB next instruction: Opcode: RECV, Task uuid: 14, Info: 
-self.instructions: Opcode: RECV, Task uuid: 14, Info: 
-self.worker: <bound method MeshHostWorker.run_executable of <alpa.device_mesh.MeshHostWorker object at 0x7f00b464bd90>>
-uuid: 72
-self.executables[uuid]: <bound method PipeshardMeshWorkerExecutable.execute_on_worker of <alpa.pipeline_parallel.pipeshard_executable.PipeshardMeshWorkerExecutable object at 0x7f14ac341a30>>
-def PipeshardExecutable.execute_on_worker
-!PipeshardExecutable.execute_on_worker
-memory_allocated: 4.340 GB  max_memory_allocated: 4.340 GB next instruction: Opcode: RUN, Task uuid: 21, Info: allocate zero for grad acc
-self.instructions: Opcode: RUN, Task uuid: 21, Info: allocate zero for grad acc
-self.worker: <bound method MeshHostWorker.run_executable of <alpa.device_mesh.MeshHostWorker object at 0x7f14ac33cdf0>>
-PASS
-uuid: 21
-self.executables[uuid]: <bound method AllocZeroBufferWorkerExecutable.execute_on_worker of <alpa.mesh_executable.AllocZeroBufferWorkerExecutable object at 0x7f14ac33c070>>
-PASS
-memory_allocated: 4.948 GB  max_memory_allocated: 4.948 GB next instruction: Opcode: RUN, Task uuid: 27, Info: allocate zero for recv
-self.instructions: Opcode: RUN, Task uuid: 27, Info: allocate zero for recv
-self.worker: <bound method MeshHostWorker.run_executable of <alpa.device_mesh.MeshHostWorker object at 0x7f14ac33cdf0>>
-PASS
-uuid: 27
-self.executables[uuid]: <bound method AllocZeroBufferWorkerExecutable.execute_on_worker of <alpa.mesh_executable.AllocZeroBufferWorkerExecutable object at 0x7f14ac211fa0>>
-PASS
-memory_allocated: 4.972 GB  max_memory_allocated: 4.972 GB next instruction: Opcode: RECV, Task uuid: 18, Info: 
-self.instructions: Opcode: RECV, Task uuid: 18, Info: 
-self.worker: <bound method MeshHostWorker.run_executable of <alpa.device_mesh.MeshHostWorker object at 0x7f14ac33cdf0>>
+GroupManager.create_collective_group
+who call? : init_collective_group
+group_name: 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:4,172.17.0.11:gpu:5
+2, 0, 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:4,172.17.0.11:gpu:5
+GroupManager.create_collective_group
+who call? : init_collective_group
+group_name: 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:4,172.17.0.11:gpu:5
+2, 1, 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:4,172.17.0.11:gpu:5
+GroupManager.create_collective_group
+who call? : init_collective_group
+group_name: 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:2,172.17.0.11:gpu:3
+2, 0, 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:2,172.17.0.11:gpu:3
+GroupManager.create_collective_group
+who call? : init_collective_group
+group_name: 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:2,172.17.0.11:gpu:3
+2, 1, 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:2,172.17.0.11:gpu:3
+GroupManager.create_collective_group
+who call? : init_collective_group
+group_name: 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:0,172.17.0.11:gpu:1
+2, 0, 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:0,172.17.0.11:gpu:1
+GroupManager.create_collective_group
+who call? : init_collective_group
+group_name: 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:0,172.17.0.11:gpu:1
+2, 1, 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:0,172.17.0.11:gpu:1
+GroupManager.create_collective_group
+who call? : init_collective_group
+GroupManager.create_collective_group
+group_name: 172.17.0.11:gpu:4,172.17.0.11:gpu:5,172.17.0.11:gpu:2,172.17.0.11:gpu:3
+who call? : init_collective_group
+2, 0, 172.17.0.11:gpu:4,172.17.0.11:gpu:5,172.17.0.11:gpu:2,172.17.0.11:gpu:3
+group_name: 172.17.0.11:gpu:4,172.17.0.11:gpu:5,172.17.0.11:gpu:2,172.17.0.11:gpu:3
+2, 1, 172.17.0.11:gpu:4,172.17.0.11:gpu:5,172.17.0.11:gpu:2,172.17.0.11:gpu:3
+GroupManager.create_collective_group
+who call? : init_collective_group
+GroupManager.create_collective_group
+who call? : init_collective_group
+group_name: 172.17.0.11:gpu:2,172.17.0.11:gpu:3,172.17.0.11:gpu:0,172.17.0.11:gpu:1
+2, 1, 172.17.0.11:gpu:2,172.17.0.11:gpu:3,172.17.0.11:gpu:0,172.17.0.11:gpu:1
+group_name: 172.17.0.11:gpu:2,172.17.0.11:gpu:3,172.17.0.11:gpu:0,172.17.0.11:gpu:1
+2, 0, 172.17.0.11:gpu:2,172.17.0.11:gpu:3,172.17.0.11:gpu:0,172.17.0.11:gpu:1
+GroupManager.create_collective_group
+who call? : init_collective_group
+group_name: 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:4,172.17.0.11:gpu:5,172.17.0.11:gpu:2,172.17.0.11:gpu:3,172.17.0.11:gpu:0,172.17.0.11:gpu:1
+4, 1, 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:4,172.17.0.11:gpu:5,172.17.0.11:gpu:2,172.17.0.11:gpu:3,172.17.0.11:gpu:0,172.17.0.11:gpu:1
+GroupManager.create_collective_group
+who call? : init_collective_group
+GroupManager.create_collective_group
+group_name: 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:4,172.17.0.11:gpu:5,172.17.0.11:gpu:2,172.17.0.11:gpu:3,172.17.0.11:gpu:0,172.17.0.11:gpu:1
+who call? : init_collective_group
+4, 2, 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:4,172.17.0.11:gpu:5,172.17.0.11:gpu:2,172.17.0.11:gpu:3,172.17.0.11:gpu:0,172.17.0.11:gpu:1
+group_name: 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:4,172.17.0.11:gpu:5,172.17.0.11:gpu:2,172.17.0.11:gpu:3,172.17.0.11:gpu:0,172.17.0.11:gpu:1
+4, 3, 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:4,172.17.0.11:gpu:5,172.17.0.11:gpu:2,172.17.0.11:gpu:3,172.17.0.11:gpu:0,172.17.0.11:gpu:1
+GroupManager.create_collective_group
+who call? : init_collective_group
+group_name: 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:4,172.17.0.11:gpu:5,172.17.0.11:gpu:2,172.17.0.11:gpu:3,172.17.0.11:gpu:0,172.17.0.11:gpu:1
+4, 0, 172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:4,172.17.0.11:gpu:5,172.17.0.11:gpu:2,172.17.0.11:gpu:3,172.17.0.11:gpu:0,172.17.0.11:gpu:1

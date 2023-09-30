@@ -23,7 +23,6 @@ is_initialized = False
 
 
 def init(cluster: str = "ray",
-         cluster_address: Optional[str] = None,
          num_nodes: Optional[int] = None,
          num_devices_per_node: Optional[int] = None,
          namespace: Optional[str] = "alpa_default_space"):
@@ -41,12 +40,6 @@ def init(cluster: str = "ray",
         Possible choices: {"local", "ray"}.
         "local" means using all local devices on a single node.
         "ray" means using all devices in a ray cluster.
-      cluster_address: Address of the distributed cluster.
-        If cluster is "ray", this parameter can be used to specify a different
-          address that will be used to initialize the ray cluster.
-          E.g., "ray://123.45.67.89:10001". If not specified, "auto" will be
-          used instead.
-        Ignored if cluster is "local".
       num_nodes: The number of nodes.
       num_devices_per_node: The number of devices per node.
     """
@@ -56,8 +49,7 @@ def init(cluster: str = "ray",
         return
     is_initialized = True
 
-    init_global_cluster(cluster, cluster_address, num_nodes,
-                        num_devices_per_node, namespace)
+    init_global_cluster(cluster, num_nodes, num_devices_per_node, namespace)
 
 
 def shutdown():
@@ -127,7 +119,11 @@ class ParallelizedFunc:
         """Launch the computation on the driver."""
         executable, _, out_tree, args_flat = (
             self._decode_args_and_get_executable(*args))
+        #print(f"out_tree: {out_tree}") # <function transformation_with_aux.<locals>.<lambda> at 0x7f4171d5f0d0>
+        #print(f"executable: {executable}") # <alpa.pipeline_parallel.pipeshard_executable.PipeshardDriverExecutable object 
         out = executable.launch_on_driver(*args_flat)
+        #print(f"out: {out}") # <alpa.device_mesh.DistributedArray object at 0x7fb3e7de3f10>
+        #print(f"out: {tree_unflatten(out_tree(), out)}") # (TrainState(step=<alpa.device_mesh.DistributedArray object at 0x7fa4dde45970>, apply_fn=<bound metho
         return tree_unflatten(out_tree(), out)
 
     def get_executable(self, *args):
@@ -206,7 +202,7 @@ class ParallelizedFunc:
 
 
 @lu.cache
-def _compile_parallel_executable(
+def _compile_parallel_executable( # here
     fun: lu.WrappedFun,
     in_tree: PyTreeDef,
     out_tree_thunk: Callable[[], PyTreeDef],
