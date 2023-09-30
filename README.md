@@ -1,3 +1,8 @@
+# 3D parallelism (based Alpa) and offload
+optimal offload and 3D parallelism
+
+
+
 <div align="center">
 <img src="https://github.com/alpa-projects/alpa/blob/main/docs/logo/alpa-logo-cropped.png" alt="logo" width="250"></img>
 <br></br>
