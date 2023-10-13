@@ -122,7 +122,9 @@ class EagerReshardingTask(ReshardingTask):
             raise RuntimeError(f"The src array locates on a different "
                                f"mesh `{src_array.device_mesh}` than "
                                f"self.src_mesh `{self.src_mesh}`.")
-
+        # not here
+        with open("/SSD/YG/alpa/execution_order.txt", "a") as f:
+            print("EagerReshardingTask.do", flush=True, file=f)
         remote_ref = _device_mesh_put_dummy(src_array.aval, self.dst_mesh,
                                             self.task_spec.dst_indices, 1)  # pylint: disable=protected-access
         for i, (dst_tile, src_tiles, indices_in_dst_tiles) in enumerate(
@@ -227,6 +229,9 @@ class SymbolicReshardingTask(ReshardingTask):
         """
         Put all send, recv and allgather tasks to their MeshHostWorkers
         """
+        #not here
+        with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+            print("[AllGAther] SymbolicReshardingTask.put_all_tasks", flush=True, file=f)
         # put send and recv tasks
         task_dones = []
         for worker, task in self.sender_tasks.items():
@@ -344,7 +349,9 @@ class SymbolicReshardingTask(ReshardingTask):
     # FIXME(Hao): test the function below; it might be buggy.
     def do_prepared(self, src_array, profiling=False):
         """Execute a task which has been put in the remote workers."""
-
+        # not here
+        with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+            print("SymbolicReshardingTask.do_prepared", file=f, flush=True)
         result_ref = RemoteArrayRef(self.dst_mesh)
 
         results = []
@@ -466,7 +473,9 @@ class SymbolicBroadcastReshardingTask(ReshardingTask):
     def _compile_broadcast_tasks(self):
         """Compile broadcast tasks."""
         dtype = self.task_spec.src.aval.dtype
-
+        # here
+        with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+            print("SymbolicBroadcastReshardingTask._compile_broadcast_tasks", flush=True, file=f)
         # print("order: ", self.task_spec.strategy.order)
         for i, j in self.task_spec.strategy.order:
             spec_plan = self.task_spec.strategy.per_spec_plans[i]
@@ -955,6 +964,8 @@ class CrossMeshCommunicator:
         for s in sharded_stages:
             if not isinstance(s, XlaShardedPipelineComputation):
                 raise RuntimeError("Require a list of sharded stages.")
+        #with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+        #    print("CrossMeshCommunicator.__init__", flush=True, file=f)
         # Do not mutate
         self._sharded_stages = sharded_stages
         self._schedule = schedule
@@ -974,6 +985,7 @@ class CrossMeshCommunicator:
         self._create_resharding_specs()
         # Generate a send/recv strategies for all resharding tasks by looking
         # at their load.
+        print("CrossMeshCommunicator.__init__", flush=True)
         for src_mesh_idx, dst_mesh_idx, var_spec_map in self.task_spec_iter():
             for _, spec in var_spec_map.items():
                 if global_config.resharding_mode == "send_recv":
@@ -981,6 +993,7 @@ class CrossMeshCommunicator:
                         spec, self._schedule.meshes[src_mesh_idx],
                         self._schedule.meshes[dst_mesh_idx]))
                 else:
+                    print("CrossMeshCommunicator.__init__.broadcast", flush=True)
                     strategy = (self._generate_broadcast_resharding_strategy(
                         spec, self._schedule.meshes[src_mesh_idx],
                         self._schedule.meshes[dst_mesh_idx]))
@@ -1006,7 +1019,8 @@ class CrossMeshCommunicator:
         than 1, an extra chunk is appended on t_dim;
         3. When there is no replicas on m_dim, the iteration terminates.
         """
-
+        with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+            print("CrossMeshCommunicator._rewrite_allgather_spec", flush=True, file=f)
         if not global_config.use_local_allgather:
             return sharding_spec
         # check whether the tensor is fully sharded.
@@ -1229,7 +1243,7 @@ class CrossMeshCommunicator:
 
     def _generate_broadcast_resharding_strategy(self, spec: ReshardingTaskSpec,
                                                 src_mesh, dst_mesh):
-        if global_config.resharding_loadbalance_mode == "normal":
+        if global_config.resharding_loadbalance_mode == "normal": # here
             strategy = (self._generate_broadcast_resharding_strategy_by_loads(
                 spec, self._sender_loads, self._receiver_loads))
         elif global_config.resharding_loadbalance_mode == "no_loadbalance":
