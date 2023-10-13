@@ -137,9 +137,9 @@ class MeshHostWorker:
         if global_config.enable_overlapping:
             xe.set_num_device_on_host(self.num_devices)
 
-        self.buffers = {}  # Dict[uuid -> Sequence[DeviceArray]]
+        self.buffers = {}  # Dict[uuid -> Sequence[DeviceArray]] # here for PipeshardMeshWorkerExecutable
         self.executables = {}  # Dict[uud -> MeshWorkerExecutable]
-
+        self.allgather_communicators = {} # yg
         self.send_tasks = {}  # Dict[uuid -> ReshardingSendTask]
         self.recv_tasks = {}  # Dict[uuid -> ReshardingRecvTask]
         self.broadcast_tasks = {}  # Dict[uuid -> BroadcastTask]
@@ -164,30 +164,55 @@ class MeshHostWorker:
                     datas: Sequence[np.ndarray],
                     num_batch=1,
                     batch_dim=0):
+        # num_batch == num_micro_batches
+        
+        with open("/SSD/YG/alpa/ray/test.txt", "a") as f:
+            print(f"MEshHostWorker.put_buffers", flush=True, file=f)
+            print(f"self.num_devices: {self.num_devices}", flush=True, file=f)
         assert len(datas) == self.num_devices
         if not isinstance(uuids, Iterable):
             uuids = [uuids]
-        assert len(uuids) == num_batch
+        assert len(uuids) == num_batch # num_micro_batch
         if num_batch > 1:
             split_datas = []
             for data in datas:
-                split_buffers = np.split(data, num_batch, batch_dim)
+                split_buffers = np.split(data, num_batch, batch_dim) # split per num_micro_batch
+                # array 형태로 그대로 [] 없이 들어가.
                 split_datas.extend(split_buffers)
             datas = split_datas
         arys = [([None] * self.num_devices) for _ in range(num_batch)]
-        for i, data in enumerate(datas):
+        for i, data in enumerate(datas): # self.num_devices
             if data.dtype == np.int64:
                 data = data.astype(np.int32)
-            device_id, batch_id = divmod(i, num_batch)
+            device_id, batch_id = divmod(i, num_batch) # num_batch: num_micro_batch
+            with open("/SSD/YG/alpa/ray/test.txt", "a") as f:
+                print(f"device_id: {device_id}, batch_id: {batch_id}", flush=True, file=f) # 0 ~ 8
+            # 여기를 param offloading + AllGather
+            # 1. 여기 보낼 떄 부터 AllGather로 보낼까? (또 sharding을 적용하면 operation에도 영향이 가니까, Allgather할 떄만 임의로 shrarding된 hlo를 하나 더 만들어서 실행?)
+            # 여기서는 아직 cpu에 있는 data임. -> buffer_from_pyval에서 H2D로 copy.
+            # 2. 새로운 객체를 xla-side에 만들어서 bufferin을 모아서 처리하도록?
+            # 3. input
+            # arrays에 PjRtBuffer* object를 저장해 둠(이미 gpu device memory에 올라간 것).
+            # single array만 pass됨.
             arys[batch_id][device_id] = (self.backend.buffer_from_pyval(
-                data, self.local_devices[device_id]))
-
+                data, self.local_devices[device_id])) # 여기에서 Buffer in 호출! 하나씩 들어오네 ..
+            with open("/SSD/YG/alpa/ray/test.txt", "a") as f:
+                print(f"[PUT_BUFFERS] w/ {data.shape} len: {len(datas)}", flush=True, file=f)
+                #print(f"arys[batch_id][device_id]: {type(arys[batch_id][device_id])}", flush=True, file=f) # <class 'jaxlib.xla_extension.DeviceArray'>
         for uuid, ary in zip(uuids, arys):
+            
+            with open("/SSD/YG/alpa/ray/test.txt", "a") as f:
+                print(f"[put_buffers] input_uuids: {uuid}", flush=True, file=f)
+            # 여기가 나중에, Normal~.execute_on_worker에서
+            # buffer_dict = self.worker.buffers
             self.buffers[uuid] = ary
 
     def shard_and_put_non_zero_buffer(self, uuids: Union[Sequence[int], int],
                                       shape: Sequence[int], dtype: np.dtype,
                                       indices: Sequence, num_batch: int):
+        # not here
+        #with open("/SSD/YG/alpa/ray/test.txt", "a") as f:
+        #    print("MeshHostWorker.shard_and_put_non_zero_buffer", flush=True, file=f)
         if isinstance(uuids, int):
             uuids = [uuids]
         assert len(uuids) == num_batch
@@ -276,6 +301,8 @@ class MeshHostWorker:
             del self.executables[uuid]
 
     def run_executable(self, uuid: int, *args, **kwargs):
+        with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+            print(f"executables[{uuid}].execute_on_worker(: {self.executables[uuid]}, {self.executables[uuid].execute_on_worker}", flush=True, file=f)
         self.executables[uuid].execute_on_worker(*args, **kwargs)
 
     def get_exec_hlo_text(self, uuid: int):
@@ -335,6 +362,9 @@ class MeshHostWorker:
 
     def load_array(self, ckpt_dir: str, uuid: Sequence[int],
                    device_ids: Sequence[int], shard_indices: Sequence[Index]):
+        # not here
+        #with open("/SSD/YG/alpa/ray/test.txt", "a") as f:
+        #    print("MeshHostWorker.load_array", flush=True, file=f)
         metadatas = list(
             filter(lambda fname: fname.startswith("metadata"),
                    os.listdir(ckpt_dir)))
@@ -398,7 +428,7 @@ class MeshHostWorker:
         g = col.check_and_get_group(group_name)
         g.create_nccl_broadcast_communicator(comm_key, world_size, device_ids,
                                              devices_global_rank, nccl_uid)
-
+    
     @staticmethod
     def destroy_collective_group(group_name: str = "default"):
         col.destroy_collective_group(group_name)
@@ -433,7 +463,10 @@ class MeshHostWorker:
                            send_tile_spec.tile_spec.rank,
                            send_tile_spec.tile_spec.gpu_idx, task.group_name)
 
-    def run_resharding_recv_task(self, uuid, ary_uuid, set_empty_buffer=True):
+    def run_resharding_recv_task(self, uuid, ary_uuid, set_empty_buffer=True): # here
+        with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+            print("MeshHostWorker.run_resharding_recv_task", flush=True, file=f)
+            print(f"recv_uuid: {ary_uuid}", flush=True, file=f)
         task: ReshardingRecvTask = self.recv_tasks[uuid]
         group_name = task.group_name
         if set_empty_buffer and ary_uuid not in self.buffers:
@@ -503,13 +536,25 @@ class MeshHostWorker:
                                       ary_uuid,
                                       set_empty_buffer=True):
         task: ReshardingBroadcastTask = self.broadcast_tasks[uuid]
-        group_name = task.group_name
+        group_name = task.group_name # not here
+        with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+            print(f" run_resharding_broadcast_task.task.group_name: {group_name}", flush=True, file=f) # <alpa.collective.collective.GroupManager 
+            # 172.17.0.11:gpu:4,172.17.0.11:gpu:5,172.17.0.11:gpu:6,172.17.0.11:gpu:7,172.17.0.11:gpu:0,172.17.0.11:gpu:1,172.17.0.11:gpu:2,172.17.0.11:gpu:3
         broadcast_specs = task.broadcast_specs
-        if set_empty_buffer and ary_uuid not in self.buffers:
+        
+        if set_empty_buffer and ary_uuid not in self.buffers: # MeshHostWorker
             assert not global_config.enable_overlapping, "Unsupported."
             picked_spec = list(broadcast_specs.values())[0]
             shape = picked_spec.recv_tile_shape
             dtype = picked_spec.dtype
+            # h2D?
+            with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+                #print(f"broadcast_specs : {broadcast_specs}", flush=True, file=f) # <alpa.collective.collective.GroupManager 
+                print(f"if set_empty_buffer and ary_uuid not in self.buffers:", flush=True, file=f)
+                print(f"[BROADCAST]input_uuid: {ary_uuid}", flush=True, file=f)
+                print(f"picked_spec: {picked_spec}", flush=True, file=f)
+                print(f"shape: {shape}", file=f, flush=True)
+                print(f"dtype: {dtype}", flush=True, file=f)
             self.buffers[ary_uuid] = [
                 self.backend.buffer_from_pyval(np.full(shape, 1e-8, dtype),
                                                self.local_devices[device_id])
@@ -521,7 +566,19 @@ class MeshHostWorker:
             broadcast_spec: ReshardingBroadcastSpec = broadcast_specs[group_idx]
             is_send = broadcast_spec.devices_global_rank[0] == 0
             has_recv = has_recv or not is_send
+            with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+                print(f"[BROADCAST]input_uuid: {ary_uuid}", flush=True, file=f)
+                print(f"group_idx: {group_idx}", flush=True, file=f)
+                #print(f"broadcast_spec.devices_global_rank: {broadcast_spec.devices_global_rank}", flush=True, file=f)
+                print(f"is_send: {is_send}", flush=True, file=f)
+                print(f"has_recv: {has_recv}", flush=True, file=f)
+                print(f"broadcast_spec.comm_key: {broadcast_spec.comm_key}", flush=True, file=f)
+                print(f"broadcast_spec.world_size: {broadcast_spec.world_size}", flush=True, file=f)
+                print(f"broadcast_spec.devices_ids: {broadcast_spec.devices_ids}", flush=True, file=f)
+                print(f"broadcast_spec.devices_global_rank: {broadcast_spec.devices_global_rank}", flush=True, file=f)
+                print(f"broadcast_spec.tensor_slices: {broadcast_spec.tensor_slices}", flush=True, file=f)
             if global_config.enable_overlapping:
+                #compute_stream과 sync 맞춰서 data send
                 col.wait_events(group_name, [ary_uuid], self.num_devices,
                                 is_send)
 
@@ -531,7 +588,7 @@ class MeshHostWorker:
                                        broadcast_spec.devices_global_rank,
                                        broadcast_spec.tensor_slices,
                                        task.group_name)
-        if global_config.enable_overlapping and has_recv:
+        if global_config.enable_overlapping and has_recv: # True
             col.record_events(group_name, [ary_uuid], self.num_devices, False)
 
     ##### Profiling and Debugging Related Functions #####
@@ -769,6 +826,9 @@ class PhysicalDeviceMesh(ABC):
         Shard arguments (np.ndarray) as distributed arrays according to
         PlacementSpec.
         """
+        #not here
+        with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+            print("shard_args_to_arrays_ps", flush=True, file=f)
         avals = tuple(x.aval for x in placement_specs)
         assert all(
             len(x.mesh_ids) == 1 and x.mesh_ids[0] == self.mesh_id
@@ -855,6 +915,9 @@ class LocalPhysicalDeviceMesh(PhysicalDeviceMesh):
                            donated_invars: Sequence[bool],
                            batch_invars: Sequence[bool], num_micro_batches: int,
                            args: Sequence[Any]):
+        # not here
+        with open("/SSD/YG/alpa/ray/test.txt", "a") as f:
+            print(f"LocalPhysicalDeviceMesh.shard_args_to_bufs", flush=True, file=f)
         bufs = []
         for arg, indices, donated, is_batch_var in zip(args, shard_indices,
                                                        donated_invars,
@@ -878,10 +941,13 @@ class LocalPhysicalDeviceMesh(PhysicalDeviceMesh):
 
         return bufs
 
-    def shard_args_to_arrays(self, avals: Sequence[ShapedArray],
+    def shard_args_to_arrays(self, avals: Sequence[ShapedArray], # LocalPhysicalDeviceMesh
                              shard_indices: Sequence[Sequence[Index]],
                              sharding_specs: Sequence[ShardingSpec],
                              args: Sequence[Any]):
+        # not here
+        with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+            print("LocalPhysicalDeviceMesh.shard_args_to_arrays", flush=True, file=f)
         arrays = []
         for i in range(len(avals)):
             if global_config.use_dummy_value_for_benchmarking:
@@ -1256,10 +1322,13 @@ class DistributedPhysicalDeviceMesh(PhysicalDeviceMesh):
         ray.get(tasks)
 
     ##### Executable Related Functions #####
+    # here DistributedPhysicalDeviceMesh
     def shard_args_to_bufs(self, shard_indices: Sequence[Sequence[Index]],
                            donated_invars: Sequence[bool],
                            batch_invars: Sequence[bool], num_micro_batches: int,
                            args: Sequence[Any]):
+        #with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+        #    print("shard_args_to_bufs", file=f, flush=True) # 매 iteration 마다.
         ret_bufs = []
         total_bytes = 0
         time_start = time.time()
@@ -1267,33 +1336,55 @@ class DistributedPhysicalDeviceMesh(PhysicalDeviceMesh):
         for arg, indices, donated, is_batch_var in zip(args, shard_indices,
                                                        donated_invars,
                                                        batch_invars):
+            # DistributedArray 빼고는 다 들어옴.
             tic = time.time()
             slow_path = False
-
-            if is_batch_var:
+            if is_batch_var: # bool for index of invar
                 if (isinstance(arg, DistributedArray) and
                         arg.skip_shard_args_check is True):
+                    # not heresd
+                    #print("if (isinstance(arg, DistributedArray) and")
+                    #print(f"num_micro_batches: {num_micro_batches}")
                     assert num_micro_batches == 1
                     ret_bufs.append([arg.remote_ref])
                 else:
+                    #print(f"is_batch_var w/ {type(arg)}") # 'jaxlib.xla_extension.DeviceArray'
                     slow_path = True
-                    if not isinstance(arg, ShapedArray):
+                    # batch_invar 면 다 여기로 들어와
+                    if not isinstance(arg, ShapedArray): # jax.core.ShapedArray
+                        #print(f"here w/ {type(arg)}") # 'jaxlib.xla_extension.DeviceArray'>
                         arg = np.asarray(arg)
-                    refs = _shard_array(arg, self, indices, num_micro_batches)
+                        #print(f"after = {type(arg)}") # <class 'numpy.ndarray'>
+                        print(f"indices: {indices}")
+                        # indices: ((slice(0, 64, None), slice(None, None, None)), (slice(64, 128, None), slice(None, None, None)), (slice(128, 192, None), slice(None, None, None)), (slice(192, 256, None), slice(None, None, None)), (slice(256, 320, None), slice(None, None, None)), (slice(320, 384, None), slice(None, None, None)), (slice(384, 448, None), slice(None, None, None)), (slice(448, 512, None), slice(None, None, None)), (slice(0, 64, None), slice(None, None, None)), (slice(64, 128, None), slice(None, None, None)), (slice(128, 192, None), slice(None, None, None)), (slice(192, 256, None), slice(None, None, None)), (slice(256, 320, None), slice(None, None, None)), (slice(320, 384, None), slice(None, None, None)), (slice(384, 448, None), slice(None, None, None)), (slice(448, 512, None), slice(None, None, None)), (slice(0, 64, None), slice(None, None, None)), (slice(64, 128, None), slice(None, None, None)), (slice(128, 192, None), slice(None, None, None)), (slice(192, 256, None), slice(None, None, None)), (slice(256, 320, None), slice(None, None, None)), (slice(320, 384, None), slice(None, None, None)), (slice(384, 448, None), slice(None, None, None)), (slice(448, 512, None), slice(None, None, None)), (slice(0, 64, None), slice(None, None, None)), (slice(64, 128, None), slice(None, None, None)), (slice(128, 192, None), slice(None, None, None)), (slice(192, 256, None), slice(None, None, None)), (slice(256, 320, None), slice(None, None, None)), (slice(320, 384, None), slice(None, None, None)), (slice(384, 448, None), slice(None, None, None)), (slice(448, 512, None), slice(None, None, None)))
+                    refs = _shard_array(arg, self, indices, num_micro_batches) # put_buff
                     ret_bufs.append(refs)
             else:
+                # non_batch_invar  == params
                 if (isinstance(arg, DistributedArray) and
                         arg.device_mesh == self and arg.indices == indices):
                     # Fast path for DistributedArray
+                    #print(f"arg: {arg}")
+                    # DistributedArray(sharding_spec=ShardingSpec((Chunked(4), NoSharding()), (ShardedAxis(axis=0),)), value=[[-0.01581   -0.0319    -0.03232   ... -0.00698    0.000256  -0.0351   ]
+                    #print(f"arg.indices: {indices}")
+                    # arg.indices: ((slice(0, 256, None), slice(None, None, None)), (slice(256, 512, None), slice(None, None, None)), (slice(512, 768, None), slice(None, None, None)), (slice(768, 1024, None), slice(None, None, None)))
+                    #print(f"device_mesh: {arg.device_mesh} /. self: {self}") # DistributedPhysicalDeviceMesh 
                     ret_bufs.append(arg.remote_ref)
-                elif isinstance(arg, ReplicatedDistributedArray):
-                    replica = arg.get_replica_on_mesh(self)
+                elif isinstance(arg, ReplicatedDistributedArray): # replicated on multiple emshes (e.g., optimizer's step)
+                    replica = arg.get_replica_on_mesh(self) #Physical_mesh is self @ replica=array
                     assert replica.indices == indices
-                    ret_bufs.append(replica.remote_ref)
+                    ret_bufs.append(replica.remote_ref) # replica == array
                 else:  # Slow path
                     slow_path = True
                     if type(arg) not in [ShapedArray, ShapeDtypeStruct]:
-                        arg = xla.canonicalize_dtype(arg)
+                        #print("if type(arg) not in [ShapedArray, ShapeDtypeStruct]:")
+                        #print(f" before arg.type: {arg.dtype}") # <class 'jaxlib.xla_extension.DeviceArray'>
+                        arg = xla.canonicalize_dtype(arg) # return _to_float32[dtype]\
+                    #print(f"type(arg): {type(arg)}")
+                    # 2 가지 case
+                    # type(arg): <class 'numpy.ndarray'>
+                    # type(arg): <class 'jaxlib.xla_extension.DeviceArray'>
+                    # 결국 _shard_array로 호출.
                     ref = shard_arg_handlers[type(arg)](arg, self, indices)[0]
                     ret_bufs.append(ref)
                     if donated and hasattr(arg, "delete"):
@@ -1303,7 +1394,7 @@ class DistributedPhysicalDeviceMesh(PhysicalDeviceMesh):
 
             if False and slow_path:  # pylint: disable=condition-evals-to-constant
                 # Print debug info
-                size = np.prod(arg.shape) * arg.dtype.itemsize
+                size = np.prod(arg.shape) * arg.dtype.itemsize # 'ReplicatedDistributedArray' object has no attribute 'shape'
                 bandwidth = size / (time.time() - tic)
                 total_bytes += size
                 print("Slow path. "
@@ -1318,6 +1409,9 @@ class DistributedPhysicalDeviceMesh(PhysicalDeviceMesh):
                              shard_indices: Sequence[Sequence[Index]],
                              sharding_specs: Sequence[ShardingSpec],
                              args: Sequence[np.array]):
+        # not here
+        with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+            print("shard_args_to_arrays", flush=True, file=f)
         arrays = []
         for i in range(len(avals)):
             remote_ref = _shard_array(args[i], self, shard_indices[i])[0]
@@ -1328,6 +1422,9 @@ class DistributedPhysicalDeviceMesh(PhysicalDeviceMesh):
 
     def get_outputs_handler(self, avals: Sequence[ShapedArray],
                             sharding_specs: Sequence[ShardingSpec]):
+        # not here
+        with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+            print("DistributedPhysicalDeviceMesh.get_outputs_handlers", flush=True, file=f)
         indices = [
             pxla.spec_to_indices(aval.shape, spec)
             for aval, spec in zip(avals, sharding_specs)
@@ -1594,7 +1691,10 @@ class DistributedArray:
             Load the data from `path` distributedly with `aval` and
             return a new DistributedArray
         """
+        # not here
         # pylint: disable=import-outside-toplevel
+        with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+            print("[ary_refs]DistributedArray.load", flush=True, file=f)
         ary_ref = RemoteArrayRef(device_mesh)
         indices = pxla.spec_to_indices(aval.shape, sharding_spec)
 
@@ -2015,6 +2115,9 @@ class PhysicalDeviceMeshGroup:
 
     def shard_args_to_arrays(self, placement_specs: PlacementSpec,
                              args: Sequence[Any]):
+        # not here
+        with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+            print("shard_args_to_arrays", flush=True, file=f)
         rets = []
 
         for info, arg in zip(placement_specs, args):
@@ -2418,6 +2521,9 @@ def create_and_record_cross_mesh_collective_communicators(
 # Register ShardArg Handler
 ########################################
 def _device_mesh_put(device_mesh, shards, num_batch, batch_dim):
+    # batch invar면 일다 여기 들어 와
+    print("_device_mesh_put")
+    # shards = datas (micro_batch)
     ary_refs, ary_uuids = create_remote_array_refs(device_mesh, num_batch)
     shard_step = device_mesh.num_devices_per_host
     for host_id in range(device_mesh.num_hosts):
@@ -2428,6 +2534,8 @@ def _device_mesh_put(device_mesh, shards, num_batch, batch_dim):
 
 
 def _device_mesh_put_dummy(array, device_mesh, indices, num_batch):
+    # not here
+    print("_device_mesh_put_dummy")
     ary_refs, ary_uuids = create_remote_array_refs(device_mesh, num_batch)
     step = device_mesh.num_devices_per_host * num_batch
     for host_id in range(device_mesh.num_hosts):
@@ -2458,11 +2566,12 @@ def _shard_array(array, device_mesh, indices, num_batch=1, batch_dim=0):
             datas = [np.asarray(array)] * len(indices)
         else:
             datas = [np.ascontiguousarray(array[i]) for i in indices]
-        if num_batch > 1:
+        if num_batch > 1: # num_batch = num_micro_batch
             concate_datas = []
             for device_id in range(device_mesh.num_devices):
+                # datas : 1D array
                 mb = datas[device_id * num_batch:(device_id + 1) * num_batch]
-                concate_datas.append(np.concatenate(mb, axis=batch_dim))
+                concate_datas.append(np.concatenate(mb, axis=batch_dim)) # axis=0
             datas = concate_datas
         return _device_mesh_put(device_mesh, datas, num_batch, batch_dim)
 
@@ -2487,10 +2596,27 @@ def _shard_distributed_array(array,
 
 shard_arg_handlers = {}  # Shard an argument to a distributed array
 for a in array_types:
+    '''array_types: <class 'numpy.float16'>
+    array_types: <class 'numpy.uint8'>
+    array_types: <class 'numpy.complex64'>
+    array_types: <class 'numpy.int8'>
+    array_types: <class 'numpy.ndarray'>
+    array_types: <class 'numpy.float32'>
+    array_types: <class 'numpy.uint16'>
+    array_types: <class 'numpy.complex128'>
+    array_types: <class 'numpy.int16'>
+    array_types: <class 'numpy.bool_'>
+    array_types: <class 'numpy.float64'>
+    array_types: <class 'numpy.uint32'>
+    array_types: <class 'numpy.int32'>
+    array_types: <class 'numpy.uint64'>
+    array_types: <class 'numpy.int64'>
+    array_types: <class 'numpy.longlong'>
+    array_types: <class 'bfloat16'>'''
     shard_arg_handlers[a] = _shard_array
 shard_arg_handlers[ShapedArray] = _shard_abstract_array
 shard_arg_handlers[ShapeDtypeStruct] = _shard_abstract_array
-shard_arg_handlers[xla._DeviceArray] = _shard_device_array
+shard_arg_handlers[xla._DeviceArray] = _shard_device_array # here
 shard_arg_handlers[xla._CppDeviceArray] = _shard_device_array
 shard_arg_handlers[DistributedArray] = _shard_distributed_array
 shard_arg_handlers[ShardedDeviceArray] = _shard_distributed_array
