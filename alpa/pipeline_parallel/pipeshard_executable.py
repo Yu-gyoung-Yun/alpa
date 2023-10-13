@@ -50,7 +50,8 @@ class PipeshardDriverExecutable:
                  out_tree: Optional[PyTreeDef] = None,
                  static_argnums: Optional[Sequence[int]] = None):
         ##### Input arguments #####
-        self.mesh_group = mesh_group
+        self.mesh_group = mesh_group # VirtualPhysicalMesh.(PhysicalDeviceMeshGroup(
+                                     #    physical_meshes, self))
         self.num_mesh = len(mesh_group)
         self.num_batch = num_batch
         self.in_tree = in_tree
@@ -82,9 +83,9 @@ class PipeshardDriverExecutable:
 
         ##### For handling inputs of the executable #####
         # go to the definition of PipeshardInputConfig for more details.
-        input_config = pipeshard_config.input_config
+        input_config = pipeshard_config.input_config # PipeshardInputConfig (microbatch 고려됨)
         self.donate_invars = input_config.donate_invars
-        self.mesh_arg_indices = input_config.mesh_arg_indices
+        self.mesh_arg_indices = input_config.mesh_arg_indices # from _compile_collect_mesh_input
         self.input_shard_indices = input_config.input_shard_indices
         self.delete_after_shard = input_config.delete_after_shard
         self.batch_invars = input_config.batch_invars
@@ -106,16 +107,18 @@ class PipeshardDriverExecutable:
 
         self.exec_uuid = next_mesh_executable_uuid()
         # Create a PipeshardMeshWorkerExecutable for each MeshHostWorker
-        for mesh_idx, physical_mesh in enumerate(self.mesh_group):
+        for mesh_idx, physical_mesh in enumerate(self.mesh_group): # phsycial_mesh = PhysicalDeviceMeshGroup()
             mesh_grad_uuids = pipeshard_config.grad_uuids[mesh_idx]
-            for worker in physical_mesh.workers:
+            print(f"mesh_idx: {mesh_idx} in PipeshardDriverExecutables")
+            for worker in physical_mesh.workers: # MeshHostWorker
+                #print(f"PipeshardDriverExecutable.worker: {worker}") #Actor(MeshHostWorker,~)
                 acc_grad_local_uuids = []
                 if len(mesh_grad_uuids) > 0:
                     acc_grad_local_uuids = mesh_grad_uuids
-                args = (pipeshard_config.instruction_lists[worker],
+                args = (pipeshard_config.instruction_lists[worker], # Compile gradient buffer allocations
                         input_config.input_local_uuid_lists[mesh_idx],
                         self.output_local_uuid_list[mesh_idx],
-                        pipeshard_config.executable_configs[worker],
+                        pipeshard_config.executable_configs[worker], # Compile forward, backward and apply_grad computations
                         acc_grad_local_uuids,
                         pipeshard_config.reduced_var_uuid_lists[mesh_idx],
                         self.donate_invars[mesh_idx])
@@ -159,30 +162,53 @@ class PipeshardDriverExecutable:
             for mesh_idx in range(self.num_mesh)
         ]
 
-        for mesh_idx, physical_mesh in enumerate(self.mesh_group):
+        for mesh_idx, physical_mesh in enumerate(self.mesh_group): # PipeshardDriverExecutable. iteration마다 그럼 invar를 새로 부른다고..?
             # Shard inputs
-            mesh_args = [args[idx] for idx in self.mesh_arg_indices[mesh_idx]]
+            # sequential for pipeline stages
+            #with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+            print(f"[PipeshardDriverExecutable] mesh_idx: {mesh_idx}, phsycial_mesh: {physical_mesh}")
+            # DistributedPhysicalDeviceMesh object is different per pipeline stages
+
+            mesh_args = [args[idx] for idx in self.mesh_arg_indices[mesh_idx]] # after compiled # 8
+            #print(f"self.num_batch: {self.num_batch}") # 8 #= num_micro_batches
+            # list
             tmp_bufs = physical_mesh.shard_args_to_bufs(
-                self.input_shard_indices[mesh_idx],
+                self.input_shard_indices[mesh_idx], # num_microbatch가 다 고려되어 있음.
                 self.delete_after_shard[mesh_idx], self.batch_invars[mesh_idx],
-                self.num_batch, mesh_args)
+                self.num_batch, mesh_args) # self.num_batch = num_micro_batches
+            # num_micro_batchs 만큼 input은 이미 다 들어감
+            # allgather
+            from alpa.collective.worker_nccl_util_xla import allgather
+            allgather(worker=physical_mesh,
+                      uuid=self.input_shard_indices[mesh_idx],
+                      device_ids=[ i for i in range(physical_mesh.num_devices)],
+                      tensor_slices=None,
+                      output_slice=None)
+            
 
             # Flatten the batch args in tmp_bufs
             flatten_bufs = []
             for i, is_batch_invar in enumerate(self.batch_invars[mesh_idx]):
                 if is_batch_invar:
-                    flatten_bufs.extend(tmp_bufs[i])
+                    flatten_bufs.extend(tmp_bufs[i]) # put all the iterable's elements
                 else:
                     flatten_bufs.append(tmp_bufs[i])
             input_bufs[mesh_idx] = flatten_bufs
 
             # Convert bufs to uuids
+            # 모든 micro_batch가 다 포함된 상태
             input_uuids = np.array([ref.uuid for ref in input_bufs[mesh_idx]])
             output_uuids[mesh_idx] = next_array_uuids(num_outs[mesh_idx])
-
+            #print(f"physical_mesh.workers: {physical_mesh.workers}") # [Actor(MeshHostWorker, 4f25708cf06b097625ff2a3e01000000)]
             # Execute
-            for worker in physical_mesh.workers:
-                worker.run_executable.remote(
+            # num_microbatch하나 처리하는 동안, 다음꺼 param allgather 불러오는 shard_args_to_bufs를 여기 불러오고, 다음 num_microbatch 처리하도록..!
+            # num_microbatch가 executables[4] 하나 안에서 어떻게 처리 되는지 보자보자            
+            for worker in physical_mesh.workers: # here * num(pipeline_stage) # MeshHostWorker
+                #print(f"launch_on_driver.worker.run_executable")
+                # 같은 worker (per pipelinestage) 안에서의 remote schedule은 submitted order와 동일.
+                #print(f"[PipeshardDriverExecutable] physical_mesh.worker: {worker}", flush=True)
+                # [PipeshardDriverExecutable] physical_mesh.worker: Actor(MeshHostWorker, 0c7899be9f1e1f37686446cd01000000)
+                worker.run_executable.remote( # MeshHostWorker.run_executable #-> 모든 RUN, FREE, SEND가 ray distributed안에서 평행하게 일어나.. # 근데 async인가..?
                     self.exec_uuid,
                     input_uuids,
                     output_uuids[mesh_idx],
@@ -208,6 +234,9 @@ class PipeshardDriverExecutable:
         # Check if there is OOM
         if global_config.pipeline_check_alive:
             self._check_alive()
+        #with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+            # async하게 실행돼서 executables가 나중에 나타남 # 1200개
+            #print("============================ single iteration end======================", file=f, flush=True)
 
         return self.outs_handler(self.mesh_group, output_bufs)
 
@@ -239,6 +268,8 @@ class PipeshardDriverExecutable:
 
     def __call__(self, *args):
         """Fast call without signature matching."""
+        # not here
+        #print("PipeshardDriverExecutable.__call__")
         if self.static_argnums:
             dyn_args = [
                 args[i]
@@ -360,7 +391,10 @@ class PipeshardDriverExecutable:
         """
         os.makedirs(folder, exist_ok=True)
         name = self.stages[0].hlo.name
-        name = name[:name.index("pipeshard_parallel") - 1]
+        if "pipeshard_parallel" in name:
+            name = name[:name.index("pipeshard_parallel") - 1]
+        elif "create_state_parallel" in name:
+            name = name[:name.index("create_state_parallel") - 1]
         prefix = os.path.join(folder, name)
 
         fully_optimized_hlo_texts = self.get_hlo_text(HloStatus.FULLY_OPTIMIZED)
@@ -431,7 +465,7 @@ class PipeshardDriverExecutable:
             mesh.delete_remote_executable(self.exec_uuid)
 
 
-class PipeshardMeshWorkerExecutable:
+class PipeshardMeshWorkerExecutable: # worker for MeshHostWorker
     """
     An executable that executes static pipeline runtime instructions on a
     worker.
@@ -463,7 +497,7 @@ class PipeshardMeshWorkerExecutable:
         self.partial_grad_exec_uuids = OrderedSet()
 
         # Compile executables
-        for task_config in executable_configs:
+        for task_config in executable_configs: # here
             self._related_exec_uuids.append(task_config.exec_uuid)
             if isinstance(task_config, PartialGradWorkerExecutableConfig):
                 self.worker.put_executable(task_config.exec_uuid,
@@ -484,14 +518,14 @@ class PipeshardMeshWorkerExecutable:
         self.partial_grad_exec_uuids = list(self.partial_grad_exec_uuids)
 
     def execute_on_worker(self, input_global_uuids, output_global_uuids,
-                          sync_for_timer, collect_trace):
+                          sync_for_timer, collect_trace): # here # PipeshardMeshWorkerExecutable # worker for meshhostworker
         """Execute on the mesh worker given input and output uuids."""
         # create a local buffer environment
         assert len(self.input_local_uuids) == len(input_global_uuids)
         buffers = {}
         for local_id, global_id in zip(self.input_local_uuids,
                                        input_global_uuids):
-            buffers[local_id] = self.global_buffers[global_id]
+            buffers[local_id] = self.global_buffers[global_id] # here, key_error
         if global_config.enable_overlapping:
             xe.reset_event_context(self.worker.backend)
         # donate invars
@@ -499,7 +533,7 @@ class PipeshardMeshWorkerExecutable:
             if donate:
                 self.worker.delete_buffers(global_id)
         # load the local env
-        self.worker.buffers = buffers
+        self.worker.buffers = buffers # input_buffers
         sync_func = self.worker.sync if sync_for_timer else None
 
         # Setup tracer
@@ -519,12 +553,14 @@ class PipeshardMeshWorkerExecutable:
         timers(self.exec_timer_name).start(sync_func=sync_func)
 
         for instruction in self.instructions:
-            #self.worker.sync()
-            #print(f"memory_allocated: "
-            #      f"{self.worker.get_memory_allocated()/1024**3:.3f} GB  "
-            #      f"max_memory_allocated: "
-            #      f"{self.worker.get_max_memory_allocated()/1024**3:.3f} GB "
-            #      f"next instruction: {instruction}", flush=True)
+            self.worker.sync()
+            with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+                #print(f"PipeShardMeshWorkerExecutable.worker: {self.worker}", flush=True, file=f) #MeshHostWorker
+                print(f"memory_allocated: "
+                    f"{self.worker.get_memory_allocated()/1024**3:.3f} GB  "
+                    f"max_memory_allocated: "
+                    f"{self.worker.get_max_memory_allocated()/1024**3:.3f} GB "
+                    f"next instruction: {instruction}", flush=True, file=f)
 
             if instruction.opcode == PipelineInstType.RUN:
                 log_run_begin(instruction.info, sync_func=sync_func)
@@ -543,6 +579,9 @@ class PipeshardMeshWorkerExecutable:
                 # TODO(lmzheng): move this to run_resharding_recv_task
                 if instruction.opaques["allgather_uuid"] is not None:
                     task_uuid = instruction.opaques["allgather_uuid"]
+                    # not here
+                    #with open("/SSD/YG/alpa/ray/execution_order.txt", "a") as f:
+                    #    print("[allgather]", flush=True, file=f)
                     ary_uuid = instruction.output_uuids[0]
                     self.worker.run_executable(task_uuid, [ary_uuid],
                                                [ary_uuid], False, False)
@@ -551,7 +590,7 @@ class PipeshardMeshWorkerExecutable:
                     instruction.task_uuid,
                     (instruction.input_uuids if instruction.input_uuids
                      is not None else instruction.output_uuids)[0])
-            elif instruction.opcode == PipelineInstType.FREE:
+            elif instruction.opcode == PipelineInstType.FREE: # 굳이 sequential하게 할 필요 있나? FREE랑 SEND 같이 해도 될 듯 한데
                 self.worker.delete_buffers(instruction.input_uuids)
 
         timers(self.exec_timer_name).stop(sync_func=sync_func)
